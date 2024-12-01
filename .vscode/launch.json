@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Main",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/main",
+            "preLaunchTask": "build",
+            "MIMode": "lldb",
+            "cwd": "${fileDirname}"
+        }
+    ]
+}

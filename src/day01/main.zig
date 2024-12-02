@@ -1,8 +1,9 @@
 const std = @import("std");
-const NumberList = std.ArrayList(u64);
 
 const DAY = 1;
 const INPUT = "input.txt";
+
+const NumberList = std.ArrayList(u64);
 
 fn parse(list1: *NumberList, list2: *NumberList) !void {
     const file = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, INPUT, std.math.maxInt(usize));
@@ -32,8 +33,18 @@ fn part1(list1: NumberList, list2: NumberList) !u64 {
     return sum_of_differences;
 }
 
-fn part2() !i64 {
-    return 0;
+fn part2(list1: NumberList, list2: NumberList) !u64 {
+    var similarity_score: u64 = 0;
+
+    for (list1.items) |num| {
+        var count: u64 = 0;
+        for (list2.items) |r| {
+            if (r == num) count += 1;
+        }
+        similarity_score += (num * count);
+    }
+
+    return similarity_score;
 }
 
 pub fn main() !void {
@@ -49,6 +60,6 @@ pub fn main() !void {
     const answer1 = try part1(list1, list2);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = try part2();
+    const answer2 = try part2(list1, list2);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

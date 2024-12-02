@@ -25,14 +25,14 @@ fn parse(report_list: *ReportList) !void {
 }
 
 fn has_problem(levels: []u64) bool {
-    var sign: i64 = 0;
+    var sign: ?i64 = null;
 
     for (0..levels.len - 1) |i| {
         const a: i64 = @intCast(levels[i]);
         const b: i64 = @intCast(levels[i + 1]);
         const diff = b - a;
 
-        if (i == 0) sign = std.math.sign(diff);
+        if (sign == null) sign = std.math.sign(diff);
 
         const problem = ((std.math.sign(diff) != sign) or
             (diff == 0) or
@@ -54,9 +54,31 @@ fn part1(report_list: ReportList) !u64 {
     return num_safe_reports;
 }
 
-fn part2(input: ReportList) u64 {
-    _ = input;
-    return 0;
+fn part2(report_list: ReportList) !u64 {
+    var num_safe_reports: u64 = 0;
+
+    for (report_list.items) |levels| {
+        var is_safe = true;
+
+        if (has_problem(levels)) {
+            // Need to try each sub-list made by removing one item.
+            // Report is safe if ANY of these sub-lists are safe.
+            is_safe = for (0..levels.len) |remove_index| {
+                var reduced_levels = std.ArrayList(u64).init(std.heap.page_allocator);
+                defer reduced_levels.clearAndFree();
+
+                try reduced_levels.appendSlice(levels);
+                _ = reduced_levels.orderedRemove(remove_index);
+                if (!has_problem(reduced_levels.items)) {
+                    break true;
+                }
+            } else false;
+        }
+
+        if (is_safe) num_safe_reports += 1;
+    }
+
+    return num_safe_reports;
 }
 
 pub fn main() !void {
@@ -71,6 +93,6 @@ pub fn main() !void {
     const answer1 = try part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = part2(input);
+    const answer2 = try part2(input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

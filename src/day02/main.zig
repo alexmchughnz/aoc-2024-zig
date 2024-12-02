@@ -24,28 +24,31 @@ fn parse(report_list: *ReportList) !void {
     }
 }
 
+fn has_problem(levels: []u64) bool {
+    var sign: i64 = 0;
+
+    for (0..levels.len - 1) |i| {
+        const a: i64 = @intCast(levels[i]);
+        const b: i64 = @intCast(levels[i + 1]);
+        const diff = b - a;
+
+        if (i == 0) sign = std.math.sign(diff);
+
+        const problem = ((std.math.sign(diff) != sign) or
+            (diff == 0) or
+            (@abs(diff) > 3));
+
+        if (problem) return true;
+    }
+
+    return false;
+}
+
 fn part1(report_list: ReportList) !u64 {
     var num_safe_reports: u64 = 0;
 
     for (report_list.items) |levels| {
-        const num_diffs = levels.len - 1;
-        var diffs = try std.ArrayList(i64).initCapacity(std.heap.page_allocator, num_diffs);
-        defer diffs.clearAndFree();
-
-        var is_safe = false;
-        for (0..num_diffs) |i| {
-            const a: i64 = @intCast(levels[i]);
-            const b: i64 = @intCast(levels[i + 1]);
-            const diff = b - a;
-            try diffs.append(diff);
-
-            is_safe = ((std.math.sign(diff) == std.math.sign(diffs.items[0])) and
-                (@abs(diff) > 0) and
-                (@abs(diff) <= 3));
-            if (!is_safe) break;
-        }
-
-        if (is_safe) num_safe_reports += 1;
+        if (!has_problem(levels)) num_safe_reports += 1;
     }
 
     return num_safe_reports;

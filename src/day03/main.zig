@@ -5,45 +5,58 @@ const INPUT = "input.txt";
 
 const SIZE = 128;
 
-const MUL_TOKEN = "mul";
-
 fn parse() ![]u8 {
     const file = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, INPUT, std.math.maxInt(usize));
     return file;
 }
 
-fn part1(input: []const u8) !u64 {
-    var sum_of_mul_instructions: u64 = 0;
+const ReadError = error{ InvalidToken, EndOfInput };
+
+fn read_mul(input_slice: []const u8, chars_read: *usize) ReadError!u64 {
     var i: usize = 0;
+    defer chars_read.* = i;
 
-    mul_loop: while (i < input.len) {
-        // Find "mul"...
-        const remaining_input = input[i..];
-        i += std.mem.indexOf(u8, remaining_input, MUL_TOKEN) orelse break;
+    const MUL_TOKEN = "mul(";
 
-        // ...followed by '('
-        i += MUL_TOKEN.len;
-        if (input[i] != '(') continue;
+    // Find "mul("...
+    i += std.mem.indexOf(u8, input_slice, MUL_TOKEN) orelse return ReadError.EndOfInput;
+    i += MUL_TOKEN.len;
 
-        // ...followed by digits until ',' is found
-        i += 1;
-        var n: usize = i;
-        while (input[n] != ',') : (n += 1) {
-            if (!std.ascii.isDigit(input[n])) continue :mul_loop; // Invalid mul instruction.
-        }
-        const num1 = try std.fmt.parseInt(u64, input[i..n], 10);
+    // ...followed by digits until ',' is found
+    const i_num1: usize = i;
+    while (input_slice[i] != ',') : (i += 1) {
+        if (!std.ascii.isDigit(input_slice[i])) return ReadError.InvalidToken;
+    }
+    const num1 = std.fmt.parseInt(u64, input_slice[i_num1..i], 10) catch unreachable;
+    i += 1;
 
-        // ...followed by digits until ')' is found
-        i = n + 1;
-        var m: usize = i;
-        while (input[m] != ')') : (m += 1) {
-            if (!std.ascii.isDigit(input[m])) continue :mul_loop; // Invalid mul instruction.
-        }
-        const num2 = try std.fmt.parseInt(u64, input[i..m], 10);
+    // ...followed by digits until ')' is found
+    const i_num2: usize = i;
+    while (input_slice[i] != ')') : (i += 1) {
+        if (!std.ascii.isDigit(input_slice[i])) return ReadError.InvalidToken;
+    }
+    const num2 = std.fmt.parseInt(u64, input_slice[i_num2..i], 10) catch unreachable;
+    i += 1;
 
-        // Valid mul instruction! Increment i and add result to total.
-        i = m + 1;
-        sum_of_mul_instructions += num1 * num2;
+    // Valid mul instruction! Return product.
+    return num1 * num2;
+}
+
+fn part1(input: []const u8) u64 {
+    var sum_of_mul_instructions: u64 = 0;
+
+    var index: usize = 0;
+    var chars_read: usize = undefined;
+    while (index < input.len) : (index += chars_read) {
+        const product = read_mul(input[index..], &chars_read) catch |err| {
+            switch (err) {
+                ReadError.InvalidToken => continue,
+                ReadError.EndOfInput => break,
+                else => unreachable,
+            }
+        };
+
+        sum_of_mul_instructions += product;
     }
 
     return sum_of_mul_instructions;
@@ -61,7 +74,7 @@ pub fn main() !void {
 
     const input: []u8 = try parse();
 
-    const answer1 = try part1(input);
+    const answer1 = part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
     const answer2 = try part2(input);

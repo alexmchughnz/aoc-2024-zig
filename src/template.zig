@@ -11,12 +11,12 @@ fn parse(buffer: *LinesList) !void {
     try buffer.append(lines.rest());
 }
 
-fn part1(input: LinesList) !u64 {
+fn part1(input: LinesList) u64 {
     _ = input;
     return 0;
 }
 
-fn part2(input: LinesList) !u64 {
+fn part2(input: LinesList) u64 {
     _ = input;
     return 0;
 }
@@ -27,11 +27,11 @@ pub fn main() !void {
     try stdout.print("\n*** DAY {d} ***\n", .{DAY});
 
     var input = LinesList.init(std.heap.page_allocator);
-    try parse(&input);
+    parse(&input) catch unreachable;
 
-    const answer1 = try part1(input);
+    const answer1 = part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = try part2(input);
+    const answer2 = part2(input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

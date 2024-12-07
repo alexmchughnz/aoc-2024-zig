@@ -64,7 +64,7 @@ fn part1(input: []const u8) u64 {
     return sum_of_mul_instructions;
 }
 
-fn part2(input: []const u8) !u64 {
+fn part2(input: []const u8) u64 {
     var sum_of_mul_instructions: u64 = 0;
 
     var read_enabled = true;
@@ -113,6 +113,6 @@ pub fn main() !void {
     const answer1 = part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = try part2(input);
+    const answer2 = part2(input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

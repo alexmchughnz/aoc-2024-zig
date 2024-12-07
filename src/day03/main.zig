@@ -5,6 +5,10 @@ const INPUT = "input.txt";
 
 const SIZE = 128;
 
+const MUL_TOKEN = "mul(";
+const DO_TOKEN = "do()";
+const DONT_TOKEN = "don't()";
+
 fn parse() ![]u8 {
     const file = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, INPUT, std.math.maxInt(usize));
     return file;
@@ -15,8 +19,6 @@ const ReadError = error{ InvalidToken, EndOfInput };
 fn read_mul(input_slice: []const u8, chars_read: *usize) ReadError!u64 {
     var i: usize = 0;
     defer chars_read.* = i;
-
-    const MUL_TOKEN = "mul(";
 
     // Find "mul("...
     i += std.mem.indexOf(u8, input_slice, MUL_TOKEN) orelse return ReadError.EndOfInput;
@@ -63,8 +65,42 @@ fn part1(input: []const u8) u64 {
 }
 
 fn part2(input: []const u8) !u64 {
-    _ = input;
-    return 0;
+    var sum_of_mul_instructions: u64 = 0;
+
+    var read_enabled = true;
+
+    var index: usize = 0;
+    var chars_read: usize = undefined;
+    while (index < input.len) : (index += chars_read) {
+        // Find which token occurs next.
+        const chars_until_mul = std.mem.indexOf(u8, input[index..], MUL_TOKEN) orelse break;
+        const chars_until_do = std.mem.indexOf(u8, input[index..], DO_TOKEN) orelse std.math.maxInt(usize);
+        const chars_until_dont = std.mem.indexOf(u8, input[index..], DONT_TOKEN) orelse std.math.maxInt(usize);
+
+        // Go to the next relevant instruction.
+        if (read_enabled) {
+            if (chars_until_mul < chars_until_dont) {
+                // Parse mul and execute if valid.
+                const product = read_mul(input[index..], &chars_read) catch |err| {
+                    switch (err) {
+                        ReadError.InvalidToken => continue,
+                        else => unreachable,
+                    }
+                };
+                sum_of_mul_instructions += product;
+            } else {
+                // Parse don't().
+                read_enabled = false;
+                chars_read = chars_until_dont + DONT_TOKEN.len;
+            }
+        } else {
+            // Parse do().
+            read_enabled = true;
+            chars_read = chars_until_do + DO_TOKEN.len;
+        }
+    }
+
+    return sum_of_mul_instructions;
 }
 
 pub fn main() !void {

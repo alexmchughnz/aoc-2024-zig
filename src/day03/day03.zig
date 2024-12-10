@@ -1,18 +1,11 @@
 const std = @import("std");
+const build_options = @import("build_options");
 
-const DAY = 3;
-const INPUT = "input.txt";
-
-const SIZE = 128;
+const input = @embedFile("input.txt");
 
 const MUL_TOKEN = "mul(";
 const DO_TOKEN = "do()";
 const DONT_TOKEN = "don't()";
-
-fn parse() ![]u8 {
-    const file = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, INPUT, std.math.maxInt(usize));
-    return file;
-}
 
 const ReadError = error{ InvalidToken, EndOfInput };
 
@@ -44,13 +37,13 @@ fn read_mul(input_slice: []const u8, chars_read: *usize) ReadError!u64 {
     return num1 * num2;
 }
 
-fn part1(input: []const u8) u64 {
+fn part1(data: []const u8) u64 {
     var sum_of_mul_instructions: u64 = 0;
 
     var index: usize = 0;
     var chars_read: usize = undefined;
-    while (index < input.len) : (index += chars_read) {
-        const product = read_mul(input[index..], &chars_read) catch |err| {
+    while (index < data.len) : (index += chars_read) {
+        const product = read_mul(data[index..], &chars_read) catch |err| {
             switch (err) {
                 ReadError.InvalidToken => continue,
                 ReadError.EndOfInput => break,
@@ -64,24 +57,24 @@ fn part1(input: []const u8) u64 {
     return sum_of_mul_instructions;
 }
 
-fn part2(input: []const u8) u64 {
+fn part2(data: []const u8) u64 {
     var sum_of_mul_instructions: u64 = 0;
 
     var read_enabled = true;
 
     var index: usize = 0;
     var chars_read: usize = undefined;
-    while (index < input.len) : (index += chars_read) {
+    while (index < data.len) : (index += chars_read) {
         // Find which token occurs next.
-        const chars_until_mul = std.mem.indexOf(u8, input[index..], MUL_TOKEN) orelse break;
-        const chars_until_do = std.mem.indexOf(u8, input[index..], DO_TOKEN) orelse std.math.maxInt(usize);
-        const chars_until_dont = std.mem.indexOf(u8, input[index..], DONT_TOKEN) orelse std.math.maxInt(usize);
+        const chars_until_mul = std.mem.indexOf(u8, data[index..], MUL_TOKEN) orelse break;
+        const chars_until_do = std.mem.indexOf(u8, data[index..], DO_TOKEN) orelse std.math.maxInt(usize);
+        const chars_until_dont = std.mem.indexOf(u8, data[index..], DONT_TOKEN) orelse std.math.maxInt(usize);
 
         // Go to the next relevant instruction.
         if (read_enabled) {
             if (chars_until_mul < chars_until_dont) {
                 // Parse mul and execute if valid.
-                const product = read_mul(input[index..], &chars_read) catch |err| {
+                const product = read_mul(data[index..], &chars_read) catch |err| {
                     switch (err) {
                         ReadError.InvalidToken => continue,
                         else => unreachable,
@@ -106,9 +99,7 @@ fn part2(input: []const u8) u64 {
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
 
-    try stdout.print("\n*** DAY {d} ***\n", .{DAY});
-
-    const input: []u8 = try parse();
+    try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
     const answer1 = part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});

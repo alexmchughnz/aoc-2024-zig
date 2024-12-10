@@ -7,9 +7,14 @@ pub fn build(b: *std.Build) void {
     var day: u8 = 1;
     while (day <= 25) : (day += 1) {
         const day_title = b.fmt("day{:0>2}", .{day});
-        const day_file = b.fmt("src/{s}/main.zig", .{day_title});
+        const day_file = b.fmt("src/{s}/{s}.zig", .{day_title} ** 2);
 
         const exe = b.addExecutable(.{ .name = day_title, .root_source_file = b.path(day_file), .target = target });
+
+        // Add build options.
+        const options = b.addOptions();
+        options.addOption(u8, "day", day);
+        exe.root_module.addOptions("build_options", options);
 
         // Add install step.
         const install_cmd = b.addInstallArtifact(exe, .{});

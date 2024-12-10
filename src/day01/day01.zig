@@ -1,13 +1,12 @@
 const std = @import("std");
+const build_options = @import("build_options");
 
-const DAY = 1;
-const INPUT = "input.txt";
+const input = @embedFile("input.txt");
 
 const NumberList = std.ArrayList(u64);
 
 fn parse(list1: *NumberList, list2: *NumberList) !void {
-    const file = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, INPUT, std.math.maxInt(usize));
-    var lines = std.mem.splitScalar(u8, file, '\n');
+    var lines = std.mem.splitScalar(u8, input, '\n');
 
     while (lines.next()) |line| {
         if (line.len == 0) break;
@@ -49,13 +48,11 @@ fn part2(list1: NumberList, list2: NumberList) !u64 {
 
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
-    try stdout.print("\n*** DAY {d} ***\n", .{DAY});
+    try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
     var list1 = NumberList.init(std.heap.page_allocator);
     var list2 = NumberList.init(std.heap.page_allocator);
-    parse(&list1, &list2) catch |err| {
-        std.debug.print("{any}\n", .{err});
-    };
+    parse(&list1, &list2) catch unreachable;
 
     const answer1 = try part1(list1, list2);
     try stdout.print("Part One = {d}\n", .{answer1});

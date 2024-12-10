@@ -1,19 +1,21 @@
 const std = @import("std");
+const array_grid = @import("array_grid");
+
 const build_options = @import("build_options");
 
 const input = @embedFile("input.txt");
 
 const XMAS_STR = "XMAS";
-const CharGrid = std.ArrayList([]const u8);
+const CharGrid = array_grid.ArrayGrid(u8);
 
 fn parse(grid: *CharGrid) !void {
     var lines = std.mem.splitScalar(u8, input, '\n');
-    while (lines.next()) |line| try grid.append(line);
+    while (lines.next()) |line| try grid.rows.append(line);
 }
 
 fn part1(grid: CharGrid) u64 {
-    for (grid.items) |line| {
-        std.debug.print("{s}", .{line});
+    for (grid.rows.items) |line| {
+        std.debug.print("{s}\n", .{line});
     }
 
     return 0;

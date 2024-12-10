@@ -16,6 +16,10 @@ pub fn build(b: *std.Build) void {
         options.addOption(u8, "day", day);
         exe.root_module.addOptions("build_options", options);
 
+        // Add lib modules.
+        const array_grid = b.addModule("array_grid", .{ .root_source_file = b.path("src/lib/array_grid.zig") });
+        exe.root_module.addImport("array_grid", array_grid);
+
         // Add install step.
         const install_cmd = b.addInstallArtifact(exe, .{});
 

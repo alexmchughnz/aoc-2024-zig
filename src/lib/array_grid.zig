@@ -40,23 +40,23 @@ pub fn ArrayGrid(T: type) type {
     return struct {
         rows: std.ArrayList([]const T),
 
-        fn init(alloc: std.mem.Allocator) ArrayGrid(T) {
+        pub fn init(alloc: std.mem.Allocator) ArrayGrid(T) {
             return ArrayGrid(T){ .rows = std.ArrayList([]const T).init(alloc) };
         }
 
-        fn free(self: *ArrayGrid(T)) void {
+        pub fn free(self: *ArrayGrid(T)) void {
             self.rows.clearAndFree();
         }
 
-        fn width(self: ArrayGrid(T)) usize {
+        pub fn width(self: ArrayGrid(T)) usize {
             return self.rows.getLast().len;
         }
 
-        fn height(self: ArrayGrid(T)) usize {
+        pub fn height(self: ArrayGrid(T)) usize {
             return self.rows.items.len;
         }
 
-        fn at(self: ArrayGrid(T), index: GridIndex) GridError!T {
+        pub fn at(self: ArrayGrid(T), index: GridIndex) GridError!T {
             if (index.x < 0 or index.x >= self.width()) return GridError.OutOfBounds;
             if (index.y < 0 or index.y >= self.height()) return GridError.OutOfBounds;
 

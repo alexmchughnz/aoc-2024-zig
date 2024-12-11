@@ -1,12 +1,12 @@
 const std = @import("std");
 const build_options = @import("build_options");
 
-const input = @embedFile("input.txt");
+const puzzle_input = @embedFile("input.txt");
 
 const NumberList = std.ArrayList(u64);
 
 fn parse(list1: *NumberList, list2: *NumberList) !void {
-    var lines = std.mem.splitScalar(u8, input, '\n');
+    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
 
     while (lines.next()) |line| {
         if (line.len == 0) break;

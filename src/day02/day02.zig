@@ -1,12 +1,12 @@
 const std = @import("std");
 const build_options = @import("build_options");
 
-const input = @embedFile("input.txt");
+const puzzle_input = @embedFile("input.txt");
 
 const ReportList = std.ArrayList([]u64);
 
 fn parse(report_list: *ReportList) !void {
-    var lines = std.mem.splitScalar(u8, input, '\n');
+    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
 
     while (lines.next()) |line| {
         if (line.len == 0) break;
@@ -85,13 +85,13 @@ pub fn main() !void {
 
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    var input_list = ReportList.init(std.heap.page_allocator);
-    defer input_list.clearAndFree();
-    try parse(&input_list);
+    var input = ReportList.init(std.heap.page_allocator);
+    defer input.clearAndFree();
+    try parse(&input);
 
-    const answer1 = try part1(input_list);
+    const answer1 = try part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = try part2(input_list);
+    const answer2 = try part2(input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

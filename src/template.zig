@@ -1,32 +1,30 @@
 const std = @import("std");
+const build_options = @import("build_options");
 
-const DAY = 1;
-const INPUT = "input.txt";
+const puzzle_input = @embedFile("input.txt");
 
-const LinesList = std.ArrayList([]const u8);
+const Lines = std.ArrayList([]const u8);
 
-fn parse(buffer: *LinesList) !void {
-    const file = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, INPUT, std.math.maxInt(usize));
-    const lines = std.mem.splitScalar(u8, file, '\n');
-    try buffer.append(lines.rest());
+fn parse(buffer: *Lines) !void {
+    try buffer.append(std.mem.splitScalar(u8, puzzle_input, '\n').rest());
 }
 
-fn part1(input: LinesList) u64 {
-    _ = input;
+fn part1(input_list: Lines) u64 {
+    _ = input_list;
     return 0;
 }
 
-fn part2(input: LinesList) u64 {
-    _ = input;
+fn part2(input_list: Lines) u64 {
+    _ = input_list;
     return 0;
 }
 
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
 
-    try stdout.print("\n*** DAY {d} ***\n", .{DAY});
+    try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    var input = LinesList.init(std.heap.page_allocator);
+    var input = Lines.init(std.heap.page_allocator);
     parse(&input) catch unreachable;
 
     const answer1 = part1(input);

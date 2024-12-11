@@ -3,13 +3,13 @@ const array_grid = @import("array_grid");
 
 const build_options = @import("build_options");
 
-const input = @embedFile("input.txt");
+const puzzle_input = @embedFile("input.txt");
 
 const XMAS_STR = "XMAS";
 const CharGrid = array_grid.ArrayGrid(u8);
 
 fn parse(grid: *CharGrid) !void {
-    var lines = std.mem.splitScalar(u8, input, '\n');
+    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
     while (lines.next()) |line| try grid.rows.append(line);
 }
 
@@ -31,12 +31,12 @@ pub fn main() !void {
 
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    var input_grid = CharGrid.init(std.heap.page_allocator);
-    parse(&input_grid) catch unreachable;
+    var input = CharGrid.init(std.heap.page_allocator);
+    parse(&input) catch unreachable;
 
-    const answer1 = part1(input_grid);
+    const answer1 = part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = part2(input_grid);
+    const answer2 = part2(input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

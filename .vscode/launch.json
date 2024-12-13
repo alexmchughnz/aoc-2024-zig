@@ -2,13 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Main",
+            "name": "Debug Day",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/main",
+            "program": "${workspaceFolder}/zig-out/bin/${fileBasenameNoExtension}",
             "preLaunchTask": "build",
             "MIMode": "lldb",
-            "cwd": "${fileDirname}"
+            "cwd": "${cwd}"
         }
     ]
 }

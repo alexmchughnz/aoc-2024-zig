@@ -27,9 +27,15 @@ pub fn main() !void {
     var input = Lines.init(std.heap.page_allocator);
     parse(&input) catch unreachable;
 
+    const start1 = std.time.Instant.now() catch unreachable;
     const answer1 = part1(input);
-    try stdout.print("Part One = {d}\n", .{answer1});
+    const end1 = std.time.Instant.now() catch unreachable;
+    const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
+    try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
+    const start2 = std.time.Instant.now() catch unreachable;
     const answer2 = part2(input);
-    try stdout.print("Part Two = {d}\n", .{answer2});
+    const end2 = std.time.Instant.now() catch unreachable;
+    const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
+    try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });
 }

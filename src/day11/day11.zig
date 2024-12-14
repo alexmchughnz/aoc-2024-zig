@@ -32,8 +32,8 @@ fn part1(input_stones: Stones) u64 {
     const num_blinks = 25;
     var stones = input_stones.clone() catch unreachable;
 
-    for (0..num_blinks) |b| {
-        std.debug.print("Blink {d}...\n", .{b + 1});
+    for (0..num_blinks) |_| {
+        // std.debug.print("Blink {d}...\n", .{b + 1});
 
         var index: usize = 0;
         const length = stones.items.len;
@@ -63,8 +63,8 @@ fn part2(input_stones: Stones) u64 {
         res.value_ptr.* = 1;
     }
 
-    for (0..num_blinks) |b| {
-        std.debug.print("Blink {d}...\n", .{b + 1});
+    for (0..num_blinks) |_| {
+        // std.debug.print("Blink {d}...\n", .{b + 1});
 
         var additions = std.ArrayList(StoneFreq).init(std.heap.page_allocator);
         defer additions.clearAndFree();
@@ -122,9 +122,15 @@ pub fn main() !void {
     var input = Stones.init(std.heap.page_allocator);
     parse(&input) catch unreachable;
 
+    const start1 = std.time.Instant.now() catch unreachable;
     const answer1 = part1(input);
-    try stdout.print("Part One = {d}\n", .{answer1});
+    const end1 = std.time.Instant.now() catch unreachable;
+    const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
+    try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
+    const start2 = std.time.Instant.now() catch unreachable;
     const answer2 = part2(input);
-    try stdout.print("Part Two = {d}\n", .{answer2});
+    const end2 = std.time.Instant.now() catch unreachable;
+    const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
+    try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });
 }

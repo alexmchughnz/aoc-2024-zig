@@ -55,8 +55,6 @@ fn part1(input_stones: Stones) u64 {
 fn part2(input_stones: Stones) u64 {
     const num_blinks = 75;
 
-    var blink_result_map = std.AutoHashMap(u64, BlinkResult).init(std.heap.page_allocator);
-
     var stone_freq_map = std.AutoHashMap(u64, u64).init(std.heap.page_allocator);
     for (input_stones.items) |stone| {
         const res = stone_freq_map.getOrPutValue(stone, 0) catch unreachable;
@@ -77,14 +75,8 @@ fn part2(input_stones: Stones) u64 {
             // Clear stone count from map.
             entry.value_ptr.* = 0;
 
-            // Get blink result for stone value.
-            const blink_result: *BlinkResult = blk: {
-                const res = blink_result_map.getOrPut(stone) catch unreachable;
-                if (!res.found_existing) res.value_ptr.* = blink(stone);
-                break :blk res.value_ptr;
-            };
-
             // Add each new stone, with frequency of the input stone, to additions list.
+            const blink_result = blink(stone);
             for (blink_result) |n| {
                 if (n) |new_stone| {
                     const addition = StoneFreq{ .stone = new_stone, .freq = freq };

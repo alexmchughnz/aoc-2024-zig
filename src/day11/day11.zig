@@ -8,6 +8,25 @@ const puzzle_input = @embedFile("input.txt");
 const NUM_BLINKS = 25;
 
 const Stones = std.ArrayList(u64);
+const BlinkResult = [2]?u64;
+
+fn blink(stone: u64) BlinkResult {
+    // If 0, set to 1.
+    if (stone == 0) {
+        return .{ 1, null };
+    }
+
+    // If even number of digits, split into two stones.
+    const num_digits = math.log10_int(stone) + 1;
+    if (num_digits % 2 == 0) {
+        const half1 = stone / math.pow(u64, 10, num_digits / 2);
+        const half2 = stone % math.pow(u64, 10, num_digits / 2);
+        return .{ half1, half2 };
+    }
+
+    // No other rules apply.
+    return .{ stone * 2024, null };
+}
 
 fn part1(input_stones: Stones) u64 {
     var stones = input_stones;
@@ -20,26 +39,12 @@ fn part1(input_stones: Stones) u64 {
 
         while (index < length) : (index += 1) {
             const stone: *u64 = &stones.items[index];
+            const blink_result = blink(stone.*);
 
-            // If 0, set to 1.
-            if (stone.* == 0) {
-                stone.* = 1;
-                continue;
+            stone.* = blink_result[0] orelse unreachable;
+            if (blink_result[1]) |new_stone| {
+                stones.append(new_stone) catch unreachable;
             }
-
-            // If even number of digits, split into two stones.
-            const num_digits = math.log10_int(stone.*) + 1;
-            if (num_digits % 2 == 0) {
-                const half1 = stone.* / math.pow(u64, 10, num_digits / 2);
-                const half2 = stone.* % math.pow(u64, 10, num_digits / 2);
-
-                stone.* = half1;
-                stones.append(half2) catch unreachable;
-                continue;
-            }
-
-            // No other rules apply.
-            stone.* *= 2024;
         }
     }
 

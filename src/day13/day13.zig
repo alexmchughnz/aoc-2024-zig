@@ -1,26 +1,32 @@
 const std = @import("std");
 const build_options = @import("build_options");
 
-const puzzle_input = @embedFile("example.txt");
+const puzzle_input = @embedFile("input.txt");
+
+const Vec2 = [2]i64;
+
+const VecError = error{ NoSolution, NonIntegerSolution };
 
 const Machine = struct {
-    Ax: u64 = 0,
-    Ay: u64 = 0,
-    Bx: u64 = 0,
-    By: u64 = 0,
-    X: u64 = 0,
-    Y: u64 = 0,
+    Ax: i64 = 0,
+    Ay: i64 = 0,
+    Bx: i64 = 0,
+    By: i64 = 0,
+    X: i64 = 0,
+    Y: i64 = 0,
 };
 
 const INPUT_DELIMITERS = "=+, ";
+const A_COST = 3;
+const B_COST = 1;
 
-fn parseNumbers(line: []const u8) [2]u64 {
-    var numbers: [2]u64 = undefined;
+fn parseNumbers(line: []const u8) Vec2 {
+    var numbers: Vec2 = undefined;
     var i: usize = 0;
 
     var tokens = std.mem.tokenizeAny(u8, line, INPUT_DELIMITERS);
     while (tokens.next()) |t| {
-        const n = std.fmt.parseInt(u64, t, 10) catch continue;
+        const n = std.fmt.parseInt(i64, t, 10) catch continue;
         numbers[i] = n;
         i += 1;
     }
@@ -50,12 +56,41 @@ fn parse(machines: *std.ArrayList(Machine)) !void {
     }
 }
 
-fn part1(machines: std.ArrayList(Machine)) u64 {
-    std.debug.print("{any}\n", .{machines.items});
-    return 0;
+fn solve(m: Machine) !Vec2 {
+    const det = m.Ax * m.By - m.Bx * m.Ay;
+    if (det == 0) return VecError.NoSolution;
+
+    // Solutions via Cramer's rule.
+    const a = std.math.divExact(i64, (m.X * m.By - m.Bx * m.Y), det) catch return VecError.NonIntegerSolution;
+    const b = std.math.divExact(i64, (m.Ax * m.Y - m.X * m.Ay), det) catch return VecError.NonIntegerSolution;
+    return .{ a, b };
 }
 
-fn part2(machines: std.ArrayList(Machine)) u64 {
+fn part1(machines: std.ArrayList(Machine)) i64 {
+    var total_cost: i64 = 0;
+
+    for (1.., machines.items) |i, m| {
+        //  |Ax Bx| [a]  = [X]
+        //  |Ay By| [b]  = [Y]
+
+        std.debug.print("Machine #{d}: ", .{i});
+        const sol = solve(m) catch {
+            std.debug.print("Impossible!\n", .{});
+            continue;
+        };
+
+        const a = sol[0];
+        const b = sol[1];
+        const cost = a * A_COST + b * B_COST;
+
+        std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
+        total_cost += cost;
+    }
+
+    return total_cost;
+}
+
+fn part2(machines: std.ArrayList(Machine)) i64 {
     _ = machines;
     return 0;
 }

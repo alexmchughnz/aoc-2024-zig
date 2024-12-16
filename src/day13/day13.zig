@@ -91,8 +91,31 @@ fn part1(machines: std.ArrayList(Machine)) i64 {
 }
 
 fn part2(machines: std.ArrayList(Machine)) i64 {
-    _ = machines;
-    return 0;
+    var total_cost: i64 = 0;
+
+    for (1.., machines.items) |i, m| {
+        //  |Ax Bx| [a]  = [X + 10000000000000]
+        //  |Ay By| [b]  = [Y + 10000000000000]
+
+        var m2 = m;
+        m2.X += 10000000000000;
+        m2.Y += 10000000000000;
+
+        std.debug.print("Machine #{d}: ", .{i});
+        const sol = solve(m2) catch {
+            std.debug.print("Impossible!\n", .{});
+            continue;
+        };
+
+        const a = sol[0];
+        const b = sol[1];
+        const cost = a * A_COST + b * B_COST;
+
+        std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
+        total_cost += cost;
+    }
+
+    return total_cost;
 }
 
 pub fn main() !void {

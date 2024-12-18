@@ -1,25 +1,44 @@
 const std = @import("std");
 const build_options = @import("build_options");
 
-const puzzle_input = @embedFile("example.txt");
+const puzzle_input = @embedFile("input.txt");
 
-const FileList = std.ArrayList(?u64);
+const FileBlock = ?u64;
+const FileBlockList = std.ArrayList(FileBlock);
 
-fn part1(files: FileList) u64 {
-    std.debug.print("{any}\n", .{files.items});
-    return 0;
+fn part1(files: FileBlockList) u64 {
+    var L: usize = 0;
+    var R: usize = files.items.len - 1;
+
+    while (true) {
+        while (files.items[L] != null) L += 1;
+        while (files.items[R] == null) R -= 1;
+        if (R <= L) break;
+
+        files.items[L] = files.items[R];
+        files.items[R] = null;
+        // std.debug.print("{any}\n", .{files.items});
+    }
+
+    var checksum: u64 = 0;
+    for (0.., files.items) |index, file| {
+        if (file) |id| {
+            checksum += index * id;
+        }
+    }
+    return checksum;
 }
 
-fn part2(files: FileList) u64 {
+fn part2(files: FileBlockList) u64 {
     _ = files;
     return 0;
 }
 
-fn parse(files: *FileList) !void {
+fn parse(files: *FileBlockList) !void {
     var id: u64 = 0;
 
     for (0.., puzzle_input) |i, c| {
-        const size = try std.fmt.charToDigit(c, 10);
+        const size = std.fmt.charToDigit(c, 10) catch continue;
         if (i % 2 == 0) {
             // Add files.
             try files.appendNTimes(id, size);
@@ -36,7 +55,7 @@ pub fn main() !void {
 
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    var files = FileList.init(std.heap.page_allocator);
+    var files = FileBlockList.init(std.heap.page_allocator);
     defer files.clearAndFree();
     parse(&files) catch unreachable;
 

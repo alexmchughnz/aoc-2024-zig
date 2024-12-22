@@ -5,19 +5,6 @@ const puzzle_input = @embedFile(build_options.input_file);
 
 const NumberList = std.ArrayList(u64);
 
-fn parse(list1: *NumberList, list2: *NumberList) !void {
-    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
-
-    while (lines.next()) |line| {
-        if (line.len == 0) break;
-        var numbers = std.mem.splitSequence(u8, line, "   ");
-        const number1 = try std.fmt.parseInt(u64, numbers.next().?, 10);
-        const number2 = try std.fmt.parseInt(u64, numbers.next().?, 10);
-        try list1.append(number1);
-        try list2.append(number2);
-    }
-}
-
 fn part1(list1: NumberList, list2: NumberList) !u64 {
     std.mem.sort(u64, list1.items, {}, std.sort.asc(u64));
     std.mem.sort(u64, list2.items, {}, std.sort.asc(u64));
@@ -44,6 +31,19 @@ fn part2(list1: NumberList, list2: NumberList) !u64 {
     }
 
     return similarity_score;
+}
+
+fn parse(list1: *NumberList, list2: *NumberList) !void {
+    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
+
+    while (lines.next()) |line| {
+        if (line.len == 0) break;
+        var numbers = std.mem.splitSequence(u8, line, "   ");
+        const number1 = try std.fmt.parseInt(u64, numbers.next().?, 10);
+        const number2 = try std.fmt.parseInt(u64, numbers.next().?, 10);
+        try list1.append(number1);
+        try list2.append(number2);
+    }
 }
 
 pub fn main() !void {

@@ -5,10 +5,6 @@ const puzzle_input = @embedFile(build_options.input_file);
 
 const Lines = std.ArrayList([]const u8);
 
-fn parse(buffer: *Lines) !void {
-    try buffer.append(std.mem.splitScalar(u8, puzzle_input, '\n').rest());
-}
-
 fn part1(input_list: Lines) u64 {
     _ = input_list;
     return 0;
@@ -17,6 +13,10 @@ fn part1(input_list: Lines) u64 {
 fn part2(input_list: Lines) u64 {
     _ = input_list;
     return 0;
+}
+
+fn parse(buffer: *Lines) !void {
+    try buffer.append(std.mem.splitScalar(u8, puzzle_input, '\n').rest());
 }
 
 pub fn main() !void {

@@ -20,42 +20,6 @@ const INPUT_DELIMITERS = "=+, ";
 const A_COST = 3;
 const B_COST = 1;
 
-fn parseNumbers(line: []const u8) Vec2 {
-    var numbers: Vec2 = undefined;
-    var i: usize = 0;
-
-    var tokens = std.mem.tokenizeAny(u8, line, INPUT_DELIMITERS);
-    while (tokens.next()) |t| {
-        const n = std.fmt.parseInt(i64, t, 10) catch continue;
-        numbers[i] = n;
-        i += 1;
-    }
-
-    std.debug.assert(i == 2);
-    return numbers;
-}
-
-fn parse(machines: *std.ArrayList(Machine)) !void {
-    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
-
-    while (lines.peek() != null) {
-        const a = parseNumbers(lines.next().?);
-        const b = parseNumbers(lines.next().?);
-        const prize = parseNumbers(lines.next().?);
-
-        try machines.append(.{
-            .Ax = a[0],
-            .Ay = a[1],
-            .Bx = b[0],
-            .By = b[1],
-            .X = prize[0],
-            .Y = prize[1],
-        });
-
-        _ = lines.next(); // discard empty line
-    }
-}
-
 fn solve(m: Machine) !Vec2 {
     const det = m.Ax * m.By - m.Bx * m.Ay;
     if (det == 0) return VecError.NoSolution;
@@ -116,6 +80,42 @@ fn part2(machines: std.ArrayList(Machine)) i64 {
     }
 
     return total_cost;
+}
+
+fn parseNumbers(line: []const u8) Vec2 {
+    var numbers: Vec2 = undefined;
+    var i: usize = 0;
+
+    var tokens = std.mem.tokenizeAny(u8, line, INPUT_DELIMITERS);
+    while (tokens.next()) |t| {
+        const n = std.fmt.parseInt(i64, t, 10) catch continue;
+        numbers[i] = n;
+        i += 1;
+    }
+
+    std.debug.assert(i == 2);
+    return numbers;
+}
+
+fn parse(machines: *std.ArrayList(Machine)) !void {
+    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
+
+    while (lines.peek() != null) {
+        const a = parseNumbers(lines.next().?);
+        const b = parseNumbers(lines.next().?);
+        const prize = parseNumbers(lines.next().?);
+
+        try machines.append(.{
+            .Ax = a[0],
+            .Ay = a[1],
+            .Bx = b[0],
+            .By = b[1],
+            .X = prize[0],
+            .Y = prize[1],
+        });
+
+        _ = lines.next(); // discard empty line
+    }
 }
 
 pub fn main() !void {

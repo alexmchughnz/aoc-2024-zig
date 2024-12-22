@@ -5,24 +5,6 @@ const puzzle_input = @embedFile(build_options.input_file);
 
 const ReportList = std.ArrayList([]u64);
 
-fn parse(report_list: *ReportList) !void {
-    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
-
-    while (lines.next()) |line| {
-        if (line.len == 0) break;
-
-        var level_list = std.ArrayList(u64).init(std.heap.page_allocator);
-
-        var level_strings = std.mem.splitScalar(u8, line, ' ');
-        while (level_strings.next()) |str| {
-            const n = try std.fmt.parseInt(u64, str, 10);
-            try level_list.append(n);
-        }
-
-        try report_list.*.append(try level_list.toOwnedSlice());
-    }
-}
-
 fn has_problem(levels: []u64) bool {
     var sign: ?i64 = null;
 
@@ -80,6 +62,23 @@ fn part2(report_list: ReportList) !u64 {
     return num_safe_reports;
 }
 
+fn parse(report_list: *ReportList) !void {
+    var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
+
+    while (lines.next()) |line| {
+        if (line.len == 0) break;
+
+        var level_list = std.ArrayList(u64).init(std.heap.page_allocator);
+
+        var level_strings = std.mem.splitScalar(u8, line, ' ');
+        while (level_strings.next()) |str| {
+            const n = try std.fmt.parseInt(u64, str, 10);
+            try level_list.append(n);
+        }
+
+        try report_list.*.append(try level_list.toOwnedSlice());
+    }
+}
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
 

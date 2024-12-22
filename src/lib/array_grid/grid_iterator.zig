@@ -12,8 +12,8 @@ pub fn GridIterator(T: type) type {
         grid: *const Grid(T),
         index: GridIndex = .{ .x = 0, .y = 0 },
 
-        fn next(self: *GridIterator(T)) ?GridIndex {
-            self.index.move(GridDirection.Right);
+        pub fn next(self: *GridIterator(T)) ?GridIndex {
+            self.index.addDirection(GridDirection.Right);
 
             if (self.index.x >= self.grid.width()) {
                 // Move to start of next row.
@@ -34,7 +34,6 @@ pub fn GridIterator(T: type) type {
 test "GridIterator.next" {
     var grid = Grid(u8).init(std.testing.allocator);
     defer grid.free();
-
     const row = [_]u8{ 1, 2, 3 };
     for (0..3) |_| try grid.rows.append(&row);
 

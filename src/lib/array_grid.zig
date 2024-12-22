@@ -56,9 +56,14 @@ pub fn ArrayGrid(T: type) type {
             return self.rows.items.len;
         }
 
+        pub fn contains(self: ArrayGrid(T), index: GridIndex) bool {
+            const contains_x = (0 <= index.x) and (index.x < self.width());
+            const contains_y = (0 <= index.y) and (index.y < self.height());
+            return contains_x and contains_y;
+        }
+
         pub fn at(self: ArrayGrid(T), index: GridIndex) GridError!T {
-            if (index.x < 0 or index.x >= self.width()) return GridError.OutOfBounds;
-            if (index.y < 0 or index.y >= self.height()) return GridError.OutOfBounds;
+            if (!self.contains(index)) return GridError.OutOfBounds;
 
             const x: usize = @intCast(index.x);
             const y: usize = @intCast(index.y);
@@ -90,6 +95,19 @@ test "ArrayGrid.height" {
     for (&col) |*n| try grid.rows.append(n[0..1]);
 
     try expect(grid.height() == 3);
+}
+
+test "ArrayGrid.contains" {
+    var grid = ArrayGrid(u8).init(std.testing.allocator);
+    defer grid.free();
+
+    const row = [_]u8{ 1, 2, 3 };
+    for (0..3) |_| try grid.rows.append(&row);
+
+    try expect(grid.contains(.{ .x = 0, .y = 0 }));
+    try expect(grid.contains(.{ .x = 2, .y = 2 }));
+    try expect(!grid.contains(.{ .x = 5, .y = 5 }));
+    try expect(!grid.contains(.{ .x = -1, .y = -1 }));
 }
 
 test "ArrayGrid.at" {

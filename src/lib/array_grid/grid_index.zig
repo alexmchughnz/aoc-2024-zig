@@ -11,7 +11,7 @@ pub const GridDirection = enum {
     DownLeft,
     DownRight,
 
-    fn toIndex(self: GridDirection) GridIndex {
+    pub fn toIndex(self: GridDirection) GridIndex {
         return switch (self) {
             GridDirection.Up => .{ .x = 0, .y = -1 },
             GridDirection.Down => .{ .x = 0, .y = 1 },
@@ -29,11 +29,11 @@ pub const GridIndex = struct {
     x: isize = 0,
     y: isize = 0,
 
-    fn add(self: GridIndex, addend: GridIndex) GridIndex {
+    pub fn add(self: GridIndex, addend: GridIndex) GridIndex {
         return GridIndex{ .x = self.x + addend.x, .y = self.y + addend.y };
     }
 
-    fn move(self: *GridIndex, dir: GridDirection) void {
+    pub fn move(self: *GridIndex, dir: GridDirection) void {
         self.* = self.add(dir.toIndex());
     }
 };

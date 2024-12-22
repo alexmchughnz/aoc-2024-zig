@@ -1,40 +1,38 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
-const grid_index = @import("grid_index.zig");
-const GridIndex = grid_index.GridIndex;
-const GridDirection = grid_index.GridDirection;
+const GridIndex = @import("grid_index.zig").GridIndex;
 
-pub const ArrayGridError = error{OutOfBounds};
+pub const GridError = error{OutOfBounds};
 
-pub fn ArrayGrid(T: type) type {
+pub fn Grid(T: type) type {
     return struct {
         rows: std.ArrayList([]const T),
 
-        pub fn init(alloc: std.mem.Allocator) ArrayGrid(T) {
-            return ArrayGrid(T){ .rows = std.ArrayList([]const T).init(alloc) };
+        pub fn init(allocator: std.mem.Allocator) Grid(T) {
+            return Grid(T){ .rows = std.ArrayList([]const T).init(allocator) };
         }
 
-        pub fn free(self: *ArrayGrid(T)) void {
+        pub fn free(self: *Grid(T)) void {
             self.rows.clearAndFree();
         }
 
-        pub fn width(self: ArrayGrid(T)) usize {
+        pub fn width(self: Grid(T)) usize {
             return self.rows.getLast().len;
         }
 
-        pub fn height(self: ArrayGrid(T)) usize {
+        pub fn height(self: Grid(T)) usize {
             return self.rows.items.len;
         }
 
-        pub fn contains(self: ArrayGrid(T), index: GridIndex) bool {
+        pub fn contains(self: Grid(T), index: GridIndex) bool {
             const contains_x = (0 <= index.x) and (index.x < self.width());
             const contains_y = (0 <= index.y) and (index.y < self.height());
             return contains_x and contains_y;
         }
 
-        pub fn at(self: ArrayGrid(T), index: GridIndex) ArrayGridError!T {
-            if (!self.contains(index)) return ArrayGridError.OutOfBounds;
+        pub fn at(self: Grid(T), index: GridIndex) GridError!T {
+            if (!self.contains(index)) return GridError.OutOfBounds;
 
             const x: usize = @intCast(index.x);
             const y: usize = @intCast(index.y);
@@ -43,13 +41,13 @@ pub fn ArrayGrid(T: type) type {
     };
 }
 
-test "ArrayGrid.init" {
-    const grid = ArrayGrid(u8).init(std.testing.allocator);
-    try expect(@TypeOf(grid) == ArrayGrid(u8));
+test "Grid.init" {
+    const grid = Grid(u8).init(std.testing.allocator);
+    try expect(@TypeOf(grid) == Grid(u8));
 }
 
-test "ArrayGrid.width" {
-    var grid = ArrayGrid(u8).init(std.testing.allocator);
+test "Grid.width" {
+    var grid = Grid(u8).init(std.testing.allocator);
     defer grid.free();
 
     const row = [_]u8{ 1, 2, 3 };
@@ -58,8 +56,8 @@ test "ArrayGrid.width" {
     try expect(grid.width() == 3);
 }
 
-test "ArrayGrid.height" {
-    var grid = ArrayGrid(u8).init(std.testing.allocator);
+test "Grid.height" {
+    var grid = Grid(u8).init(std.testing.allocator);
     defer grid.free();
 
     const col = [_]u8{ 1, 2, 3 };
@@ -68,8 +66,8 @@ test "ArrayGrid.height" {
     try expect(grid.height() == 3);
 }
 
-test "ArrayGrid.contains" {
-    var grid = ArrayGrid(u8).init(std.testing.allocator);
+test "Grid.contains" {
+    var grid = Grid(u8).init(std.testing.allocator);
     defer grid.free();
 
     const row = [_]u8{ 1, 2, 3 };
@@ -81,8 +79,8 @@ test "ArrayGrid.contains" {
     try expect(!grid.contains(.{ .x = -1, .y = -1 }));
 }
 
-test "ArrayGrid.at" {
-    var grid = ArrayGrid(u8).init(std.testing.allocator);
+test "Grid.at" {
+    var grid = Grid(u8).init(std.testing.allocator);
     defer grid.free();
 
     const rows = [3][3]u8{ [_]u8{ 1, 2, 3 }, [_]u8{ 4, 5, 6 }, [_]u8{ 7, 8, 9 } };

@@ -3,6 +3,12 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
 
+    const input_file = b.option(
+        []const u8,
+        "input",
+        "Name of .txt file containing input.",
+    ) orelse "input.txt";
+
     // Create an executable for each day.
     var day: u8 = 1;
     while (day <= 25) : (day += 1) {
@@ -13,7 +19,10 @@ pub fn build(b: *std.Build) void {
 
         // Add build options.
         const options = b.addOptions();
+
         options.addOption(u8, "day", day);
+        options.addOption([]const u8, "input_file", input_file);
+
         exe.root_module.addOptions("build_options", options);
 
         // Add lib modules.

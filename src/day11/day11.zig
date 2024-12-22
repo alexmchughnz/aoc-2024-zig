@@ -4,7 +4,7 @@ const time = std.time;
 
 const build_options = @import("build_options");
 
-const puzzle_input = @embedFile("input.txt");
+const puzzle_input = @embedFile(build_options.input_file);
 
 const Stones = std.ArrayList(u64);
 const StoneFreq = struct { stone: u64, freq: u64 };

@@ -3,7 +3,7 @@ const array_grid = @import("array_grid");
 
 const build_options = @import("build_options");
 
-const puzzle_input = @embedFile("input.txt");
+const puzzle_input = @embedFile(build_options.input_file);
 
 const XMAS_STR = "XMAS";
 const CharGrid = array_grid.ArrayGrid(u8);

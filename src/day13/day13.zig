@@ -1,7 +1,7 @@
 const std = @import("std");
 const build_options = @import("build_options");
 
-const puzzle_input = @embedFile("input.txt");
+const puzzle_input = @embedFile(build_options.input_file);
 
 const Vec2 = [2]i64;
 

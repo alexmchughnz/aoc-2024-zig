@@ -1,6 +1,9 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
+const Grid = @import("grid.zig").Grid;
+const GridError = @import("grid.zig").GridError;
+
 pub const GridDirection = enum {
     Up,
     Down,
@@ -29,12 +32,12 @@ pub const GridIndex = struct {
     x: isize = 0,
     y: isize = 0,
 
-    pub fn add(self: GridIndex, addend: GridIndex) GridIndex {
-        return GridIndex{ .x = self.x + addend.x, .y = self.y + addend.y };
+    pub fn add(self: GridIndex, other: GridIndex) GridIndex {
+        return GridIndex{ .x = self.x + other.x, .y = self.y + other.y };
     }
 
-    pub fn move(self: *GridIndex, dir: GridDirection) void {
-        self.* = self.add(dir.toIndex());
+    pub fn addDirection(self: GridIndex, direction: GridDirection) GridIndex {
+        return self.add(direction.toIndex());
     }
 };
 
@@ -50,24 +53,24 @@ test "GridIndex.add" {
     try expect(result.x == -2 and result.y == -2);
 }
 
-test "GridIndex.move" {
+test "GridIndex.addDirection" {
     var index = GridIndex{};
 
-    index.move(GridDirection.Down);
+    index = index.addDirection(GridDirection.Down);
     try expect(index.x == 0 and index.y == 1);
-    index.move(GridDirection.Right);
+    index = index.addDirection(GridDirection.Right);
     try expect(index.x == 1 and index.y == 1);
-    index.move(GridDirection.Up);
+    index = index.addDirection(GridDirection.Up);
     try expect(index.x == 1 and index.y == 0);
-    index.move(GridDirection.Left);
+    index = index.addDirection(GridDirection.Left);
     try expect(index.x == 0 and index.y == 0);
 
-    index.move(GridDirection.DownRight);
+    index = index.addDirection(GridDirection.DownRight);
     try expect(index.x == 1 and index.y == 1);
-    index.move(GridDirection.DownLeft);
+    index = index.addDirection(GridDirection.DownLeft);
     try expect(index.x == 0 and index.y == 2);
-    index.move(GridDirection.UpLeft);
+    index = index.addDirection(GridDirection.UpLeft);
     try expect(index.x == -1 and index.y == 1);
-    index.move(GridDirection.UpRight);
+    index = index.addDirection(GridDirection.UpRight);
     try expect(index.x == 0 and index.y == 0);
 }

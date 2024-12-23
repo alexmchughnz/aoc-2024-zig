@@ -1,7 +1,8 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
-const GridIndex = @import("grid_index.zig").GridIndex;
+const grid_index = @import("grid_index.zig");
+const GridIndex = grid_index.GridIndex;
 
 pub const GridError = error{OutOfBounds};
 
@@ -41,52 +42,47 @@ pub fn Grid(T: type) type {
     };
 }
 
+pub fn testingGrid() Grid(u8) {
+    // 2x3 grid for tests.
+    var grid = Grid(u8).init(std.testing.allocator);
+    grid.rows.append(&[_]u8{ 1, 2, 3 }) catch unreachable;
+    grid.rows.append(&[_]u8{ 4, 5, 6 }) catch unreachable;
+
+    return grid;
+}
+
 test "Grid.init" {
     const grid = Grid(u8).init(std.testing.allocator);
     try expect(@TypeOf(grid) == Grid(u8));
 }
 
 test "Grid.width" {
-    var grid = Grid(u8).init(std.testing.allocator);
+    var grid = testingGrid();
     defer grid.free();
-
-    const row = [_]u8{ 1, 2, 3 };
-    try grid.rows.append(&row);
 
     try expect(grid.width() == 3);
 }
 
 test "Grid.height" {
-    var grid = Grid(u8).init(std.testing.allocator);
+    var grid = testingGrid();
     defer grid.free();
 
-    const col = [_]u8{ 1, 2, 3 };
-    for (&col) |*n| try grid.rows.append(n[0..1]);
-
-    try expect(grid.height() == 3);
+    try expect(grid.height() == 2);
 }
 
 test "Grid.contains" {
-    var grid = Grid(u8).init(std.testing.allocator);
+    var grid = testingGrid();
     defer grid.free();
 
-    const row = [_]u8{ 1, 2, 3 };
-    for (0..3) |_| try grid.rows.append(&row);
-
     try expect(grid.contains(.{ .x = 0, .y = 0 }));
-    try expect(grid.contains(.{ .x = 2, .y = 2 }));
+    try expect(grid.contains(.{ .x = 2, .y = 1 }));
     try expect(!grid.contains(.{ .x = 5, .y = 5 }));
     try expect(!grid.contains(.{ .x = -1, .y = -1 }));
 }
 
 test "Grid.at" {
-    var grid = Grid(u8).init(std.testing.allocator);
+    var grid = testingGrid();
     defer grid.free();
-
-    const rows = [3][3]u8{ [_]u8{ 1, 2, 3 }, [_]u8{ 4, 5, 6 }, [_]u8{ 7, 8, 9 } };
-    for (&rows) |*row| {
-        try grid.rows.append(row);
-    }
 
     try expect(try grid.at(.{ .x = 0, .y = 0 }) == 1);
     try expect(try grid.at(.{ .x = 1, .y = 0 }) == 2);
@@ -94,7 +90,4 @@ test "Grid.at" {
     try expect(try grid.at(.{ .x = 0, .y = 1 }) == 4);
     try expect(try grid.at(.{ .x = 1, .y = 1 }) == 5);
     try expect(try grid.at(.{ .x = 2, .y = 1 }) == 6);
-    try expect(try grid.at(.{ .x = 0, .y = 2 }) == 7);
-    try expect(try grid.at(.{ .x = 1, .y = 2 }) == 8);
-    try expect(try grid.at(.{ .x = 2, .y = 2 }) == 9);
 }

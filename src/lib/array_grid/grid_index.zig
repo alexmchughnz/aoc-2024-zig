@@ -1,8 +1,9 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
-const Grid = @import("grid.zig").Grid;
-const GridError = @import("grid.zig").GridError;
+const grid_module = @import("grid.zig");
+const Grid = grid_module.Grid;
+const GridError = grid_module.GridError;
 
 pub const GridDirection = enum {
     Up,

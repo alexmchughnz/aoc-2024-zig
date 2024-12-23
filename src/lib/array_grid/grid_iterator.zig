@@ -1,7 +1,8 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
-const Grid = @import("grid.zig").Grid;
+const grid_module = @import("grid.zig");
+const Grid = grid_module.Grid;
 
 const grid_index = @import("grid_index.zig");
 const GridIndex = grid_index.GridIndex;
@@ -33,20 +34,15 @@ pub fn GridIterator(T: type) type {
 }
 
 test "GridIterator.next" {
-    var grid = Grid(u8).init(std.testing.allocator);
+    var grid = grid_module.testingGrid();
     defer grid.free();
-    const row = [_]u8{ 1, 2, 3 };
-    for (0..3) |_| try grid.rows.append(&row);
 
     var it = GridIterator(u8){ .grid = &grid };
 
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 1, .y = 0 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 2, .y = 0 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 0, .y = 1 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 1, .y = 1 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 2, .y = 1 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 0, .y = 2 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 1, .y = 2 }));
-    try expect(std.meta.eql(it.next().?, GridIndex{ .x = 2, .y = 2 }));
+    try std.testing.expectEqual(it.next().?, GridIndex{ .x = 1, .y = 0 });
+    try std.testing.expectEqual(it.next().?, GridIndex{ .x = 2, .y = 0 });
+    try std.testing.expectEqual(it.next().?, GridIndex{ .x = 0, .y = 1 });
+    try std.testing.expectEqual(it.next().?, GridIndex{ .x = 1, .y = 1 });
+    try std.testing.expectEqual(it.next().?, GridIndex{ .x = 2, .y = 1 });
     try expect(it.next() == null);
 }

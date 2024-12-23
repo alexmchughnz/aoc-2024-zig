@@ -1,8 +1,13 @@
 const grid = @import("grid.zig");
-const Grid = grid.Grid;
+pub const Grid = grid.Grid;
 
 const grid_index = @import("grid_index.zig");
-const GridIndex = grid_index.GridIndex;
-const GridDirection = grid_index.GridDirection;
+pub const GridIndex = grid_index.GridIndex;
+pub const GridDirection = grid_index.GridDirection;
 
 const grid_iterator = @import("grid_iterator.zig");
+pub const GridIterator = grid_iterator.GridIterator;
+
+test {
+    @import("std").testing.refAllDecls(@This());
+}

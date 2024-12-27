@@ -1,24 +1,36 @@
 const std = @import("std");
-const array_grid = @import("array_grid");
 
 const build_options = @import("build_options");
-
 const puzzle_input = @embedFile(build_options.input_file);
 
+const array_grid = @import("array_grid");
+const GridDirection = array_grid.GridDirection;
+
 const XMAS_STR = "XMAS";
-const CharGrid = array_grid.ArrayGrid(u8);
+const CharGrid = array_grid.Grid(u8);
 
 fn parse(grid: *CharGrid) !void {
     var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
-    while (lines.next()) |line| try grid.rows.append(line);
+    while (lines.next()) |line| if (line.len > 0) try grid.rows.append(line);
 }
 
 fn part1(grid: CharGrid) u64 {
-    for (grid.rows.items) |line| {
-        std.debug.print("{s}\n", .{line});
-    }
+    var count: u64 = 0;
 
-    return 0;
+    var iterator = grid.iterator();
+    while (iterator.next()) |index| {
+        dir_loop: for (std.enums.values(GridDirection)) |direction| {
+            var next = index;
+            for (XMAS_STR) |target_char| {
+                const char = grid.at(next) catch continue :dir_loop;
+                if (char != target_char) continue :dir_loop;
+
+                next = next.addDirection(direction);
+            }
+            count += 1;
+        }
+    }
+    return count;
 }
 
 fn part2(grid: CharGrid) u64 {

@@ -4,6 +4,9 @@ const expect = std.testing.expect;
 const grid_index = @import("grid_index.zig");
 const GridIndex = grid_index.GridIndex;
 
+const grid_iterator = @import("grid_iterator.zig");
+const GridIterator = grid_iterator.GridIterator;
+
 pub const GridError = error{OutOfBounds};
 
 pub fn Grid(T: type) type {
@@ -16,6 +19,10 @@ pub fn Grid(T: type) type {
 
         pub fn free(self: *Grid(T)) void {
             self.rows.clearAndFree();
+        }
+
+        pub fn iterator(self: *const Grid(T)) GridIterator(T) {
+            return GridIterator(T){ .grid = self };
         }
 
         pub fn width(self: Grid(T)) usize {
@@ -54,6 +61,14 @@ pub fn testingGrid() Grid(u8) {
 test "Grid.init" {
     const grid = Grid(u8).init(std.testing.allocator);
     try expect(@TypeOf(grid) == Grid(u8));
+}
+
+test "Grid.iterator" {
+    var grid = testingGrid();
+    defer grid.free();
+
+    const it = grid.iterator();
+    try expect(@TypeOf(it) == GridIterator(u8));
 }
 
 test "Grid.width" {

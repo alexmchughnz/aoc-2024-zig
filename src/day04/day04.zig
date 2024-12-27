@@ -21,21 +21,43 @@ fn part1(grid: CharGrid) u64 {
     while (iterator.next()) |index| {
         dir_loop: for (std.enums.values(GridDirection)) |direction| {
             var next = index;
+
             for (XMAS_STR) |target_char| {
                 const char = grid.at(next) catch continue :dir_loop;
                 if (char != target_char) continue :dir_loop;
-
                 next = next.addDirection(direction);
             }
+
             count += 1;
         }
     }
+
     return count;
 }
 
 fn part2(grid: CharGrid) u64 {
-    _ = grid;
-    return 0;
+    var count: u64 = 0;
+
+    var iterator = grid.iterator();
+    while (iterator.next()) |index| {
+        const current_char = grid.at(index) catch unreachable;
+        if (current_char != 'A') continue;
+
+        const valid_xmas = inline for (.{ GridDirection.UpLeft, GridDirection.DownLeft }) |dir| {
+            const first = grid.at(index.addDirection(dir)) catch break false;
+            const last = grid.at(index.addDirection(dir.opposite())) catch break false;
+
+            switch (first) {
+                'M' => if (last != 'S') break false,
+                'S' => if (last != 'M') break false,
+                else => break false,
+            }
+        } else true;
+
+        if (valid_xmas) count += 1;
+    }
+
+    return count;
 }
 
 pub fn main() !void {

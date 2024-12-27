@@ -15,16 +15,29 @@ pub const GridDirection = enum {
     DownLeft,
     DownRight,
 
+    pub fn opposite(self: GridDirection) GridDirection {
+        return switch (self) {
+            .Up => .Down,
+            .Down => .Up,
+            .Left => .Right,
+            .Right => .Left,
+            .UpLeft => .DownRight,
+            .UpRight => .DownLeft,
+            .DownLeft => .UpRight,
+            .DownRight => .UpLeft,
+        };
+    }
+
     pub fn toIndex(self: GridDirection) GridIndex {
         return switch (self) {
-            GridDirection.Up => .{ .x = 0, .y = -1 },
-            GridDirection.Down => .{ .x = 0, .y = 1 },
-            GridDirection.Left => .{ .x = -1, .y = 0 },
-            GridDirection.Right => .{ .x = 1, .y = 0 },
-            GridDirection.UpLeft => .{ .x = -1, .y = -1 },
-            GridDirection.UpRight => .{ .x = 1, .y = -1 },
-            GridDirection.DownLeft => .{ .x = -1, .y = 1 },
-            GridDirection.DownRight => .{ .x = 1, .y = 1 },
+            .Up => .{ .x = 0, .y = -1 },
+            .Down => .{ .x = 0, .y = 1 },
+            .Left => .{ .x = -1, .y = 0 },
+            .Right => .{ .x = 1, .y = 0 },
+            .UpLeft => .{ .x = -1, .y = -1 },
+            .UpRight => .{ .x = 1, .y = -1 },
+            .DownLeft => .{ .x = -1, .y = 1 },
+            .DownRight => .{ .x = 1, .y = 1 },
         };
     }
 };

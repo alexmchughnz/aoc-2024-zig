@@ -6,44 +6,49 @@ const puzzle_input = @embedFile(build_options.input_file);
 const PageRule = struct { a: u64, b: u64 };
 const PageList = []u64;
 
-fn part1(rules: std.ArrayList(PageRule), lists: std.ArrayList(PageList)) u64 {
-    var correct_list_indices = std.ArrayList(usize).init(std.heap.page_allocator);
-
-    list_loop: for (0.., lists.items) |i_list, list| {
-        // For each `page` in `list`, check every `rule`.
-        // If any rules are violated, the list is skipped.
-        for (0.., list) |i_page, page| {
-            for (rules.items) |rule| {
-                if (rule.a == page) {
-                    if (std.mem.indexOfScalar(u64, list, rule.b)) |i_b| {
-                        // Invalid if b appears earlier in `list` than a.
-                        if (i_b < i_page) continue :list_loop;
-                    }
+// For each `page` in `list`, check every `rule`.
+// If any rules are violated, the list is invalid.
+fn is_list_valid(list: PageList, rules: []PageRule) bool {
+    for (0.., list) |i_page, page| {
+        for (rules) |rule| {
+            if (rule.a == page) {
+                if (std.mem.indexOfScalar(u64, list, rule.b)) |i_b| {
+                    // Invalid if b appears earlier in `list` than a.
+                    if (i_b < i_page) return false;
                 }
-                if (rule.b == page) {
-                    if (std.mem.indexOfScalar(u64, list, rule.a)) |i_a| {
-                        // Invalid if a appears later in `list` than b.
-                        if (i_a > i_page) continue :list_loop;
-                    }
+            }
+            if (rule.b == page) {
+                if (std.mem.indexOfScalar(u64, list, rule.a)) |i_a| {
+                    // Invalid if a appears later in `list` than b.
+                    if (i_a > i_page) return false;
                 }
             }
         }
+    }
 
-        // Every `page` has been checked, with zero rule violations!
-        correct_list_indices.append(i_list) catch unreachable;
+    // Every `page` has been checked, with zero rule violations!
+    return true;
+}
+
+fn part1(rules: []PageRule, lists: []PageList) u64 {
+    var correct_lists = std.ArrayList(PageList).init(std.heap.page_allocator);
+
+    for (lists) |list| {
+        if (is_list_valid(list, rules)) {
+            correct_lists.append(list) catch unreachable;
+        }
     }
 
     var sum_of_middles: u64 = 0;
-    for (correct_list_indices.items) |i| {
-        const list = lists.items[i];
+    for (correct_lists.items) |list| {
         const middle = list[list.len / 2];
-        // std.debug.print("@{d}: {any} => {d}\n", .{ i, lists.items[i], middle });
+        std.debug.print("{any} => {d}\n", .{ list, middle });
         sum_of_middles += middle;
     }
     return sum_of_middles;
 }
 
-fn part2(rules: std.ArrayList(PageRule), lists: std.ArrayList(PageList)) u64 {
+fn part2(rules: []PageRule, lists: []PageList) u64 {
     _ = rules;
     _ = lists;
     return 0;
@@ -88,13 +93,13 @@ pub fn main() !void {
     parse(&input_rules, &input_lists) catch unreachable;
 
     const start1 = std.time.Instant.now() catch unreachable;
-    const answer1 = part1(input_rules, input_lists);
+    const answer1 = part1(input_rules.items, input_lists.items);
     const end1 = std.time.Instant.now() catch unreachable;
     const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
     try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
     const start2 = std.time.Instant.now() catch unreachable;
-    const answer2 = part2(input_rules, input_lists);
+    const answer2 = part2(input_rules.items, input_lists.items);
     const end2 = std.time.Instant.now() catch unreachable;
     const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
     try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });

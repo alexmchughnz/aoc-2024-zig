@@ -3,7 +3,7 @@ const build_options = @import("build_options");
 
 const puzzle_input = @embedFile(build_options.input_file);
 
-const ReportList = std.ArrayList([]u64);
+const Report = []u64;
 
 fn has_problem(levels: []u64) bool {
     var sign: ?i64 = null;
@@ -25,20 +25,20 @@ fn has_problem(levels: []u64) bool {
     return false;
 }
 
-fn part1(report_list: ReportList) !u64 {
+fn part1(report_list: []Report) !u64 {
     var num_safe_reports: u64 = 0;
 
-    for (report_list.items) |levels| {
+    for (report_list) |levels| {
         if (!has_problem(levels)) num_safe_reports += 1;
     }
 
     return num_safe_reports;
 }
 
-fn part2(report_list: ReportList) !u64 {
+fn part2(report_list: []Report) !u64 {
     var num_safe_reports: u64 = 0;
 
-    for (report_list.items) |levels| {
+    for (report_list) |levels| {
         var is_safe = true;
 
         if (has_problem(levels)) {
@@ -62,7 +62,7 @@ fn part2(report_list: ReportList) !u64 {
     return num_safe_reports;
 }
 
-fn parse(report_list: *ReportList) !void {
+fn parse(report_list: *std.ArrayList(Report)) !void {
     var lines = std.mem.splitScalar(u8, puzzle_input, '\n');
 
     while (lines.next()) |line| {
@@ -84,13 +84,13 @@ pub fn main() !void {
 
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    var input = ReportList.init(std.heap.page_allocator);
+    var input = std.ArrayList(Report).init(std.heap.page_allocator);
     defer input.clearAndFree();
     try parse(&input);
 
-    const answer1 = try part1(input);
+    const answer1 = try part1(input.items);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = try part2(input);
+    const answer2 = try part2(input.items);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

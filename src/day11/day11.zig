@@ -6,7 +6,6 @@ const build_options = @import("build_options");
 
 const puzzle_input = @embedFile(build_options.input_file);
 
-const Stones = std.ArrayList(u64);
 const StoneFreq = struct { stone: u64, freq: u64 };
 const BlinkResult = [2]?u64;
 
@@ -28,7 +27,7 @@ fn blink(stone: u64) BlinkResult {
     return .{ stone * 2024, null };
 }
 
-fn part1(input_stones: Stones) u64 {
+fn part1(input_stones: std.ArrayList(u64)) u64 {
     const num_blinks = 25;
     var stones = input_stones.clone() catch unreachable;
 
@@ -52,7 +51,7 @@ fn part1(input_stones: Stones) u64 {
     return stones.items.len;
 }
 
-fn part2(input_stones: Stones) u64 {
+fn part2(input_stones: std.ArrayList(u64)) u64 {
     const num_blinks = 75;
 
     var stone_freq_map = std.AutoHashMap(u64, u64).init(std.heap.page_allocator);
@@ -98,7 +97,7 @@ fn part2(input_stones: Stones) u64 {
     return totalFreq;
 }
 
-fn parse(buffer: *Stones) !void {
+fn parse(buffer: *std.ArrayList(u64)) !void {
     var tokens = std.mem.tokenizeAny(u8, puzzle_input, " \n");
     while (tokens.next()) |token| {
         const num = try std.fmt.parseInt(u64, token, 10);
@@ -111,7 +110,7 @@ pub fn main() !void {
 
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    var input = Stones.init(std.heap.page_allocator);
+    var input = std.ArrayList(u64).init(std.heap.page_allocator);
     parse(&input) catch unreachable;
 
     const start1 = std.time.Instant.now() catch unreachable;

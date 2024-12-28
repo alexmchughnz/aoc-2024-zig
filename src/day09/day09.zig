@@ -4,10 +4,8 @@ const build_options = @import("build_options");
 const puzzle_input = @embedFile(build_options.input_file);
 
 const FileBlock = ?u64;
-const FileBlockList = std.ArrayList(FileBlock);
 
 const File = struct { id: ?u64, size: u64 };
-const FileList = std.ArrayList(File);
 
 fn part1(files: []FileBlock) u64 {
     var L: usize = 0;
@@ -31,9 +29,10 @@ fn part1(files: []FileBlock) u64 {
     return checksum;
 }
 
-fn part2(files: *FileList) u64 {
-    var R: usize = files.items.len - 1;
+fn part2(input_files: std.ArrayList(File)) u64 {
+    var files = input_files.clone() catch unreachable;
 
+    var R: usize = files.items.len - 1;
     while (R > 0) : (R -= 1) {
         var L: usize = 0;
 
@@ -72,7 +71,7 @@ fn part2(files: *FileList) u64 {
     return checksum;
 }
 
-fn parseToBlocks(files: *FileBlockList) !void {
+fn parseToBlocks(files: *std.ArrayList(FileBlock)) !void {
     var id: u64 = 0;
 
     for (0.., puzzle_input) |i, c| {
@@ -90,7 +89,7 @@ fn parseToBlocks(files: *FileBlockList) !void {
     }
 }
 
-fn parseToStructs(files: *FileList) !void {
+fn parseToStructs(files: *std.ArrayList(File)) !void {
     var next_id: u64 = 0;
 
     for (0.., puzzle_input) |i, c| {
@@ -112,7 +111,7 @@ pub fn main() !void {
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
     {
-        var files = FileBlockList.init(std.heap.page_allocator);
+        var files = std.ArrayList(FileBlock).init(std.heap.page_allocator);
         defer files.clearAndFree();
         parseToBlocks(&files) catch unreachable;
 
@@ -124,12 +123,12 @@ pub fn main() !void {
     }
 
     {
-        var files = FileList.init(std.heap.page_allocator);
+        var files = std.ArrayList(File).init(std.heap.page_allocator);
         defer files.clearAndFree();
         parseToStructs(&files) catch unreachable;
 
         const start2 = std.time.Instant.now() catch unreachable;
-        const answer2 = part2(&files);
+        const answer2 = part2(files);
         const end2 = std.time.Instant.now() catch unreachable;
         const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
         try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });

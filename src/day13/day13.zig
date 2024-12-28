@@ -30,34 +30,30 @@ fn solve(m: Machine) !Vec2 {
     return .{ a, b };
 }
 
-fn part1(machines: std.ArrayList(Machine)) i64 {
+fn part1(machines: []Machine) i64 {
     var total_cost: i64 = 0;
 
-    for (1.., machines.items) |i, m| {
+    for (machines) |m| {
         //  |Ax Bx| [a]  = [X]
         //  |Ay By| [b]  = [Y]
 
-        std.debug.print("Machine #{d}: ", .{i});
-        const sol = solve(m) catch {
-            std.debug.print("Impossible!\n", .{});
-            continue;
-        };
+        const sol = solve(m) catch continue;
 
         const a = sol[0];
         const b = sol[1];
         const cost = a * A_COST + b * B_COST;
 
-        std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
+        // std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
         total_cost += cost;
     }
 
     return total_cost;
 }
 
-fn part2(machines: std.ArrayList(Machine)) i64 {
+fn part2(machines: []Machine) i64 {
     var total_cost: i64 = 0;
 
-    for (1.., machines.items) |i, m| {
+    for (machines) |m| {
         //  |Ax Bx| [a]  = [X + 10000000000000]
         //  |Ay By| [b]  = [Y + 10000000000000]
 
@@ -65,17 +61,13 @@ fn part2(machines: std.ArrayList(Machine)) i64 {
         m2.X += 10000000000000;
         m2.Y += 10000000000000;
 
-        std.debug.print("Machine #{d}: ", .{i});
-        const sol = solve(m2) catch {
-            std.debug.print("Impossible!\n", .{});
-            continue;
-        };
+        const sol = solve(m2) catch continue;
 
         const a = sol[0];
         const b = sol[1];
         const cost = a * A_COST + b * B_COST;
 
-        std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
+        // std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
         total_cost += cost;
     }
 
@@ -127,13 +119,13 @@ pub fn main() !void {
     parse(&machines) catch unreachable;
 
     const start1 = std.time.Instant.now() catch unreachable;
-    const answer1 = part1(machines);
+    const answer1 = part1(machines.items);
     const end1 = std.time.Instant.now() catch unreachable;
     const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
     try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
     const start2 = std.time.Instant.now() catch unreachable;
-    const answer2 = part2(machines);
+    const answer2 = part2(machines.items);
     const end2 = std.time.Instant.now() catch unreachable;
     const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
     try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });

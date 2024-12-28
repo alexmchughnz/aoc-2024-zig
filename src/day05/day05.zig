@@ -8,35 +8,39 @@ const PageList = []u64;
 
 fn part1(rules: std.ArrayList(PageRule), lists: std.ArrayList(PageList)) u64 {
     var correct_list_indices = std.ArrayList(usize).init(std.heap.page_allocator);
+
     list_loop: for (0.., lists.items) |i_list, list| {
-
-        // Iterate over each `page` in `list` and check each `rule` is followed.
+        // For each `page` in `list`, check every `rule`.
+        // If any rules are violated, the list is skipped.
         for (0.., list) |i_page, page| {
-            rule_loop: for (rules.items) |rule| {
-                const other_page: ?u64 = if (page == rule.a) rule.b else if (page == rule.b) rule.a else null;
-                if (other_page == null) continue :rule_loop; // Ignore rule: `page` not in `rule`.
-
-                const other_result = std.mem.indexOfScalar(u64, list, other_page.?);
-                if (other_result) |i_other| {
-                    if (page == rule.a) {
-                        // Assert b does NOT appear earlier in `list` than a.
-                        if (i_other < i_page) continue :list_loop; // This `list` breaks a rule!
+            for (rules.items) |rule| {
+                if (rule.a == page) {
+                    if (std.mem.indexOfScalar(u64, list, rule.b)) |i_b| {
+                        // Invalid if b appears earlier in `list` than a.
+                        if (i_b < i_page) continue :list_loop;
                     }
-
-                    if (page == rule.b) {
-                        // Assert a does NOT appear later in `list` than b.
-                        if (i_other > i_page) continue :list_loop;
+                }
+                if (rule.b == page) {
+                    if (std.mem.indexOfScalar(u64, list, rule.a)) |i_a| {
+                        // Invalid if a appears later in `list` than b.
+                        if (i_a > i_page) continue :list_loop;
                     }
-                } else continue :rule_loop; // Ignore rule: `other_page` not in `list`
-
+                }
             }
         }
-        // All relevant rules successfully passed!
+
+        // Every `page` has been checked, with zero rule violations!
         correct_list_indices.append(i_list) catch unreachable;
     }
 
-    for (correct_list_indices.items) |i| std.debug.print("{d}: {any}\n", .{ i, lists.items[i] });
-    return 0;
+    var sum_of_middles: u64 = 0;
+    for (correct_list_indices.items) |i| {
+        const list = lists.items[i];
+        const middle = list[list.len / 2];
+        // std.debug.print("@{d}: {any} => {d}\n", .{ i, lists.items[i], middle });
+        sum_of_middles += middle;
+    }
+    return sum_of_middles;
 }
 
 fn part2(rules: std.ArrayList(PageRule), lists: std.ArrayList(PageList)) u64 {

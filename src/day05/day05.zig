@@ -4,11 +4,38 @@ const build_options = @import("build_options");
 const puzzle_input = @embedFile(build_options.input_file);
 
 const PageRule = struct { a: u64, b: u64 };
-const PageList = std.ArrayList(u64);
+const PageList = []u64;
 
 fn part1(rules: std.ArrayList(PageRule), lists: std.ArrayList(PageList)) u64 {
-    std.debug.print("{any}\n", .{rules.items});
-    std.debug.print("{any}\n", .{lists.items});
+    var correct_list_indices = std.ArrayList(usize).init(std.heap.page_allocator);
+    list_loop: for (0.., lists.items) |i_list, list| {
+
+        // Iterate over each `page` in `list` and check each `rule` is followed.
+        for (0.., list) |i_page, page| {
+            rule_loop: for (rules.items) |rule| {
+                const other_page: ?u64 = if (page == rule.a) rule.b else if (page == rule.b) rule.a else null;
+                if (other_page == null) continue :rule_loop; // Ignore rule: `page` not in `rule`.
+
+                const other_result = std.mem.indexOfScalar(u64, list, other_page.?);
+                if (other_result) |i_other| {
+                    if (page == rule.a) {
+                        // Assert b does NOT appear earlier in `list` than a.
+                        if (i_other < i_page) continue :list_loop; // This `list` breaks a rule!
+                    }
+
+                    if (page == rule.b) {
+                        // Assert a does NOT appear later in `list` than b.
+                        if (i_other > i_page) continue :list_loop;
+                    }
+                } else continue :rule_loop; // Ignore rule: `other_page` not in `list`
+
+            }
+        }
+        // All relevant rules successfully passed!
+        correct_list_indices.append(i_list) catch unreachable;
+    }
+
+    for (correct_list_indices.items) |i| std.debug.print("{d}: {any}\n", .{ i, lists.items[i] });
     return 0;
 }
 
@@ -36,13 +63,14 @@ fn parse(rules: *std.ArrayList(PageRule), lists: *std.ArrayList(PageList)) !void
 
     // Parse page lists.
     while (lines.next()) |line| {
+        if (line.len == 0) break;
         var page_tokens = std.mem.tokenizeScalar(u8, line, ',');
-        var list = PageList.init(std.heap.page_allocator);
+        var list = std.ArrayList(u64).init(std.heap.page_allocator);
         while (page_tokens.next()) |page_str| {
             const page = std.fmt.parseInt(u64, page_str, 10) catch unreachable;
             try list.append(page);
         }
-        try lists.append(list);
+        try lists.append(try list.toOwnedSlice());
     }
 }
 

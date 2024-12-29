@@ -1,8 +1,7 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-    const target = b.standardTargetOptions(.{});
-
+    const optimize = b.standardOptimizeOption(.{});
     const input_file = b.option(
         []const u8,
         "input",
@@ -15,7 +14,12 @@ pub fn build(b: *std.Build) void {
         const day_title = b.fmt("day{:0>2}", .{day});
         const day_file = b.fmt("src/{s}/{s}.zig", .{day_title} ** 2);
 
-        const exe = b.addExecutable(.{ .name = day_title, .root_source_file = b.path(day_file), .target = target });
+        const exe = b.addExecutable(.{
+            .name = day_title,
+            .root_source_file = b.path(day_file),
+            .target = b.host,
+            .optimize = optimize,
+        });
 
         // Add build options.
         const options = b.addOptions();

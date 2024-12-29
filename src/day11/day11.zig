@@ -31,8 +31,8 @@ fn part1(input_stones: std.ArrayList(u64)) u64 {
     const num_blinks = 25;
     var stones = input_stones.clone() catch unreachable;
 
-    for (0..num_blinks) |_| {
-        // std.debug.print("Blink {d}...\n", .{b + 1});
+    for (0..num_blinks) |b| {
+        std.log.debug("Blink {d}...\n", .{b + 1});
 
         var index: usize = 0;
         const length = stones.items.len;
@@ -60,8 +60,8 @@ fn part2(input_stones: std.ArrayList(u64)) u64 {
         res.value_ptr.* = 1;
     }
 
-    for (0..num_blinks) |_| {
-        // std.debug.print("Blink {d}...\n", .{b + 1});
+    for (0..num_blinks) |b| {
+        std.log.debug("Blink {d}...\n", .{b + 1});
 
         var additions = std.ArrayList(StoneFreq).init(std.heap.page_allocator);
         defer additions.clearAndFree();

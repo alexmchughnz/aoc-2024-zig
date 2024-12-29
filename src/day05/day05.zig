@@ -44,7 +44,7 @@ fn getOrdering(p1: u64, p2: u64, rules: []PageRule) Ordering {
         if (std.mem.eql(u64, &.{ rule.a, rule.b }, &.{ p2, p1 })) break Ordering.GoesAfter;
     } else unreachable;
 
-    std.debug.print("{d} {s} [{d}]!\n", .{
+    std.log.debug("{d} {s} [{d}]!\n", .{
         p1,
         if (result == .GoesAfter) "is after" else "is before",
         p2,
@@ -74,7 +74,7 @@ fn part2(rules: []PageRule, lists: []PageList) u64 {
 
     for (lists) |list| {
         if (!is_list_valid(list, rules)) {
-            std.debug.print("\n\nFound invalid list! {any}\n", .{list});
+            std.log.debug("\n\nFound invalid list! {any}\n", .{list});
 
             var new_list = std.ArrayList(u64).init(std.heap.page_allocator);
 
@@ -85,8 +85,8 @@ fn part2(rules: []PageRule, lists: []PageList) u64 {
                     continue;
                 }
 
-                std.debug.print("\nNew list = {any}\n", .{new_list.items});
-                std.debug.print("Inserting {d}... \n", .{page});
+                std.log.debug("\nNew list = {any}\n", .{new_list.items});
+                std.log.debug("Inserting {d}... \n", .{page});
 
                 var index: u64 = 0;
                 while (index < new_list.items.len) : (index += 1) {
@@ -97,7 +97,7 @@ fn part2(rules: []PageRule, lists: []PageList) u64 {
 
                 // Insert `page` into `new_list` at correct `index`.
                 new_list.insert(index, page) catch unreachable;
-                std.debug.print("Inserted at index {d}. \n", .{index});
+                std.log.debug("Inserted at index {d}. \n", .{index});
             }
 
             // All pages have been added in the correct order.

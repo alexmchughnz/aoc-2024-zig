@@ -43,7 +43,7 @@ fn part1(machines: []Machine) i64 {
         const b = sol[1];
         const cost = a * A_COST + b * B_COST;
 
-        // std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
+        std.log.debug("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
         total_cost += cost;
     }
 
@@ -67,7 +67,7 @@ fn part2(machines: []Machine) i64 {
         const b = sol[1];
         const cost = a * A_COST + b * B_COST;
 
-        // std.debug.print("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
+        std.log.debug("{d} A presses + {d} B presses == {d} tokens.\n", .{ a, b, cost });
         total_cost += cost;
     }
 

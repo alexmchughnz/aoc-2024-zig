@@ -27,9 +27,9 @@ fn blink(stone: u64) BlinkResult {
     return .{ stone * 2024, null };
 }
 
-fn part1(input_stones: std.ArrayList(u64)) u64 {
+fn part1(input_stones: std.ArrayList(u64)) !u64 {
     const num_blinks = 25;
-    var stones = input_stones.clone() catch unreachable;
+    var stones = try input_stones.clone();
 
     for (0..num_blinks) |b| {
         std.log.debug("Blink {d}...\n", .{b + 1});
@@ -43,7 +43,7 @@ fn part1(input_stones: std.ArrayList(u64)) u64 {
 
             stone.* = blink_result[0] orelse unreachable;
             if (blink_result[1]) |new_stone| {
-                stones.append(new_stone) catch unreachable;
+                try stones.append(new_stone);
             }
         }
     }
@@ -51,12 +51,12 @@ fn part1(input_stones: std.ArrayList(u64)) u64 {
     return stones.items.len;
 }
 
-fn part2(input_stones: std.ArrayList(u64)) u64 {
+fn part2(input_stones: std.ArrayList(u64)) !u64 {
     const num_blinks = 75;
 
     var stone_freq_map = std.AutoHashMap(u64, u64).init(std.heap.page_allocator);
     for (input_stones.items) |stone| {
-        const res = stone_freq_map.getOrPutValue(stone, 0) catch unreachable;
+        const res = try stone_freq_map.getOrPutValue(stone, 0);
         res.value_ptr.* = 1;
     }
 
@@ -79,14 +79,14 @@ fn part2(input_stones: std.ArrayList(u64)) u64 {
             for (blink_result) |n| {
                 if (n) |new_stone| {
                     const addition = StoneFreq{ .stone = new_stone, .freq = freq };
-                    additions.append(addition) catch unreachable;
+                    try additions.append(addition);
                 }
             }
         }
 
         // Add additions list into map for next blink.
         for (additions.items) |sf| {
-            const res = stone_freq_map.getOrPutValue(sf.stone, 0) catch unreachable;
+            const res = try stone_freq_map.getOrPutValue(sf.stone, 0);
             res.value_ptr.* += sf.freq;
         }
     }
@@ -111,17 +111,17 @@ pub fn main() !void {
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
     var input = std.ArrayList(u64).init(std.heap.page_allocator);
-    parse(&input) catch unreachable;
+    try parse(&input);
 
-    const start1 = std.time.Instant.now() catch unreachable;
-    const answer1 = part1(input);
-    const end1 = std.time.Instant.now() catch unreachable;
+    const start1 = try std.time.Instant.now();
+    const answer1 = try part1(input);
+    const end1 = try std.time.Instant.now();
     const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
     try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
-    const start2 = std.time.Instant.now() catch unreachable;
-    const answer2 = part2(input);
-    const end2 = std.time.Instant.now() catch unreachable;
+    const start2 = try std.time.Instant.now();
+    const answer2 = try part2(input);
+    const end2 = try std.time.Instant.now();
     const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
     try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });
 }

@@ -53,12 +53,12 @@ fn getOrdering(p1: u64, p2: u64, rules: []PageRule) Ordering {
     return result;
 }
 
-fn part1(rules: []PageRule, lists: []PageList) u64 {
+fn part1(rules: []PageRule, lists: []PageList) !u64 {
     var correct_lists = std.ArrayList(PageList).init(std.heap.page_allocator);
 
     for (lists) |list| {
         if (is_list_valid(list, rules)) {
-            correct_lists.append(list) catch unreachable;
+            try correct_lists.append(list);
         }
     }
 
@@ -69,7 +69,7 @@ fn part1(rules: []PageRule, lists: []PageList) u64 {
     return sum_of_middles;
 }
 
-fn part2(rules: []PageRule, lists: []PageList) u64 {
+fn part2(rules: []PageRule, lists: []PageList) !u64 {
     var corrected_lists = std.ArrayList(PageList).init(std.heap.page_allocator);
 
     for (lists) |list| {
@@ -81,7 +81,7 @@ fn part2(rules: []PageRule, lists: []PageList) u64 {
             // Populate `new_list` with pages from `list` in the correct order.
             for (list) |page| {
                 if (new_list.items.len == 0) {
-                    new_list.append(page) catch unreachable;
+                    try new_list.append(page);
                     continue;
                 }
 
@@ -96,13 +96,13 @@ fn part2(rules: []PageRule, lists: []PageList) u64 {
                 }
 
                 // Insert `page` into `new_list` at correct `index`.
-                new_list.insert(index, page) catch unreachable;
+                try new_list.insert(index, page);
                 std.log.debug("Inserted at index {d}. \n", .{index});
             }
 
             // All pages have been added in the correct order.
             std.debug.assert(list.len == new_list.items.len);
-            corrected_lists.append(new_list.toOwnedSlice() catch unreachable) catch unreachable;
+            try corrected_lists.append(new_list.toOwnedSlice() catch unreachable);
         }
     }
 
@@ -124,7 +124,7 @@ fn parse(rules: *std.ArrayList(PageRule), lists: *std.ArrayList(PageList)) !void
         var rule: [2]u64 = undefined;
         for (0..rule.len) |i| {
             const page_str = page_tokens.next() orelse unreachable;
-            rule[i] = std.fmt.parseInt(u64, page_str, 10) catch unreachable;
+            rule[i] = try std.fmt.parseInt(u64, page_str, 10);
         }
         try rules.append(PageRule{ .a = rule[0], .b = rule[1] });
     }
@@ -135,7 +135,7 @@ fn parse(rules: *std.ArrayList(PageRule), lists: *std.ArrayList(PageList)) !void
         var page_tokens = std.mem.tokenizeScalar(u8, line, ',');
         var list = std.ArrayList(u64).init(std.heap.page_allocator);
         while (page_tokens.next()) |page_str| {
-            const page = std.fmt.parseInt(u64, page_str, 10) catch unreachable;
+            const page = try std.fmt.parseInt(u64, page_str, 10);
             try list.append(page);
         }
         try lists.append(try list.toOwnedSlice());
@@ -149,17 +149,17 @@ pub fn main() !void {
 
     var input_rules = std.ArrayList(PageRule).init(std.heap.page_allocator);
     var input_lists = std.ArrayList(PageList).init(std.heap.page_allocator);
-    parse(&input_rules, &input_lists) catch unreachable;
+    try parse(&input_rules, &input_lists);
 
-    const start1 = std.time.Instant.now() catch unreachable;
-    const answer1 = part1(input_rules.items, input_lists.items);
-    const end1 = std.time.Instant.now() catch unreachable;
+    const start1 = try std.time.Instant.now();
+    const answer1 = try part1(input_rules.items, input_lists.items);
+    const end1 = try std.time.Instant.now();
     const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
     try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
-    const start2 = std.time.Instant.now() catch unreachable;
-    const answer2 = part2(input_rules.items, input_lists.items);
-    const end2 = std.time.Instant.now() catch unreachable;
+    const start2 = try std.time.Instant.now();
+    const answer2 = try part2(input_rules.items, input_lists.items);
+    const end2 = try std.time.Instant.now();
     const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
     try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });
 }

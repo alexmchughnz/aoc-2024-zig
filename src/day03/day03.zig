@@ -37,7 +37,7 @@ fn read_mul(input: []const u8, chars_read: *usize) ReadError!u64 {
     return num1 * num2;
 }
 
-fn part1(input: []const u8) u64 {
+fn part1(input: []const u8) !u64 {
     var sum_of_mul_instructions: u64 = 0;
 
     var index: usize = 0;
@@ -57,7 +57,7 @@ fn part1(input: []const u8) u64 {
     return sum_of_mul_instructions;
 }
 
-fn part2(input: []const u8) u64 {
+fn part2(input: []const u8) !u64 {
     var sum_of_mul_instructions: u64 = 0;
 
     var read_enabled = true;
@@ -101,9 +101,9 @@ pub fn main() !void {
 
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
-    const answer1 = part1(puzzle_input);
+    const answer1 = try part1(puzzle_input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = part2(puzzle_input);
+    const answer2 = try part2(puzzle_input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

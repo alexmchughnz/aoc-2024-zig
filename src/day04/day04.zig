@@ -14,7 +14,7 @@ fn parse(grid: *CharGrid) !void {
     while (lines.next()) |line| if (line.len > 0) try grid.rows.append(line);
 }
 
-fn part1(grid: CharGrid) u64 {
+fn part1(grid: CharGrid) !u64 {
     var count: u64 = 0;
 
     var iterator = grid.iterator();
@@ -35,12 +35,12 @@ fn part1(grid: CharGrid) u64 {
     return count;
 }
 
-fn part2(grid: CharGrid) u64 {
+fn part2(grid: CharGrid) !u64 {
     var count: u64 = 0;
 
     var iterator = grid.iterator();
     while (iterator.next()) |index| {
-        const current_char = grid.at(index) catch unreachable;
+        const current_char = try grid.at(index);
         if (current_char != 'A') continue;
 
         const valid_xmas = inline for (.{ GridDirection.UpLeft, GridDirection.DownLeft }) |dir| {
@@ -66,11 +66,11 @@ pub fn main() !void {
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
     var input = CharGrid.init(std.heap.page_allocator);
-    parse(&input) catch unreachable;
+    try parse(&input);
 
-    const answer1 = part1(input);
+    const answer1 = try part1(input);
     try stdout.print("Part One = {d}\n", .{answer1});
 
-    const answer2 = part2(input);
+    const answer2 = try part2(input);
     try stdout.print("Part Two = {d}\n", .{answer2});
 }

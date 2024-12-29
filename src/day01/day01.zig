@@ -50,7 +50,7 @@ pub fn main() !void {
 
     var list1 = std.ArrayList(u64).init(std.heap.page_allocator);
     var list2 = std.ArrayList(u64).init(std.heap.page_allocator);
-    parse(&list1, &list2) catch unreachable;
+    try parse(&list1, &list2);
 
     const answer1 = try part1(list1.items, list2.items);
     try stdout.print("Part One = {d}\n", .{answer1});

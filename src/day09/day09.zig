@@ -7,7 +7,7 @@ const FileBlock = ?u64;
 
 const File = struct { id: ?u64, size: u64 };
 
-fn part1(files: []FileBlock) u64 {
+fn part1(files: []FileBlock) !u64 {
     var L: usize = 0;
     var R: usize = files.len - 1;
 
@@ -29,8 +29,8 @@ fn part1(files: []FileBlock) u64 {
     return checksum;
 }
 
-fn part2(input_files: std.ArrayList(File)) u64 {
-    var files = input_files.clone() catch unreachable;
+fn part2(input_files: std.ArrayList(File)) !u64 {
+    var files = try input_files.clone();
 
     var R: usize = files.items.len - 1;
     while (R > 0) : (R -= 1) {
@@ -51,7 +51,7 @@ fn part2(input_files: std.ArrayList(File)) u64 {
 
                 // Add new empty space if required.
                 if (unused_space > 0) {
-                    files.insert(L + 1, File{ .id = null, .size = unused_space }) catch unreachable;
+                    try files.insert(L + 1, File{ .id = null, .size = unused_space });
                     R += 1; // Increment R index to account for new item.
                 }
                 break;
@@ -113,11 +113,11 @@ pub fn main() !void {
     {
         var files = std.ArrayList(FileBlock).init(std.heap.page_allocator);
         defer files.clearAndFree();
-        parseToBlocks(&files) catch unreachable;
+        try parseToBlocks(&files);
 
-        const start1 = std.time.Instant.now() catch unreachable;
-        const answer1 = part1(files.items);
-        const end1 = std.time.Instant.now() catch unreachable;
+        const start1 = try std.time.Instant.now();
+        const answer1 = try part1(files.items);
+        const end1 = try std.time.Instant.now();
         const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
         try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
     }
@@ -125,11 +125,11 @@ pub fn main() !void {
     {
         var files = std.ArrayList(File).init(std.heap.page_allocator);
         defer files.clearAndFree();
-        parseToStructs(&files) catch unreachable;
+        try parseToStructs(&files);
 
-        const start2 = std.time.Instant.now() catch unreachable;
-        const answer2 = part2(files);
-        const end2 = std.time.Instant.now() catch unreachable;
+        const start2 = try std.time.Instant.now();
+        const answer2 = try part2(files);
+        const end2 = try std.time.Instant.now();
         const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
         try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });
     }

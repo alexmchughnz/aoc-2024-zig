@@ -30,7 +30,7 @@ fn solve(m: Machine) !Vec2 {
     return .{ a, b };
 }
 
-fn part1(machines: []Machine) i64 {
+fn part1(machines: []Machine) !i64 {
     var total_cost: i64 = 0;
 
     for (machines) |m| {
@@ -50,7 +50,7 @@ fn part1(machines: []Machine) i64 {
     return total_cost;
 }
 
-fn part2(machines: []Machine) i64 {
+fn part2(machines: []Machine) !i64 {
     var total_cost: i64 = 0;
 
     for (machines) |m| {
@@ -116,17 +116,17 @@ pub fn main() !void {
     try stdout.print("\n*** DAY {d} ***\n", .{build_options.day});
 
     var machines = std.ArrayList(Machine).init(std.heap.page_allocator);
-    parse(&machines) catch unreachable;
+    try parse(&machines);
 
-    const start1 = std.time.Instant.now() catch unreachable;
-    const answer1 = part1(machines.items);
-    const end1 = std.time.Instant.now() catch unreachable;
+    const start1 = try std.time.Instant.now();
+    const answer1 = try part1(machines.items);
+    const end1 = try std.time.Instant.now();
     const elapsed1 = end1.since(start1) / std.time.ns_per_ms;
     try stdout.print("Part One = {d} ({d:.1} ms)\n", .{ answer1, elapsed1 });
 
-    const start2 = std.time.Instant.now() catch unreachable;
-    const answer2 = part2(machines.items);
-    const end2 = std.time.Instant.now() catch unreachable;
+    const start2 = try std.time.Instant.now();
+    const answer2 = try part2(machines.items);
+    const end2 = try std.time.Instant.now();
     const elapsed2 = end2.since(start2) / std.time.ns_per_ms;
     try stdout.print("Part Two = {d} ({d:.1} ms)\n", .{ answer2, elapsed2 });
 }

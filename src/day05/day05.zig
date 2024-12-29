@@ -3,7 +3,10 @@ const build_options = @import("build_options");
 
 const puzzle_input = @embedFile(build_options.input_file);
 
-const PageRule = struct { a: u64, b: u64 };
+const PageRule = struct {
+    a: u64,
+    b: u64,
+};
 const PageList = []u64;
 
 // For each `page` in `list`, check every `rule`.
@@ -42,16 +45,94 @@ fn part1(rules: []PageRule, lists: []PageList) u64 {
     var sum_of_middles: u64 = 0;
     for (correct_lists.items) |list| {
         const middle = list[list.len / 2];
-        std.debug.print("{any} => {d}\n", .{ list, middle });
         sum_of_middles += middle;
     }
     return sum_of_middles;
 }
 
+const Ordering = enum {
+    GoesBefore,
+    GoesAfter,
+};
+
+fn getOrdering(p1: u64, p2: u64, rules: []PageRule) ?Ordering {
+    const result: ?Ordering = for (rules) |rule| {
+        if (std.mem.eql(u64, &.{ rule.a, rule.b }, &.{ p1, p2 })) break Ordering.GoesBefore;
+        if (std.mem.eql(u64, &.{ rule.a, rule.b }, &.{ p2, p1 })) break Ordering.GoesAfter;
+    } else null;
+
+    std.debug.print("{d} {s} [{d}]!\n", .{
+        p1,
+        if (result == .GoesAfter) "is after" else "is before",
+        p2,
+    });
+
+    return result;
+}
+
 fn part2(rules: []PageRule, lists: []PageList) u64 {
-    _ = rules;
-    _ = lists;
-    return 0;
+    var corrected_lists = std.ArrayList(PageList).init(std.heap.page_allocator);
+    for (lists) |list| {
+        if (!is_list_valid(list, rules)) {
+            std.debug.print("\n\nFound invalid list! {any}\n", .{list});
+
+            // Do the reordering.
+            var new_list = std.ArrayList(u64).init(std.heap.page_allocator);
+
+            page_loop: for (list) |page| {
+                if (new_list.items.len == 0) {
+                    new_list.append(page) catch unreachable;
+                    continue;
+                }
+
+                std.debug.print("\nNew list = {any}\n", .{new_list.items});
+                std.debug.print("Inserting {d}... \n", .{page});
+
+                const initial_order = getOrdering(page, new_list.items[0], rules).?;
+
+                var order = initial_order;
+                var index: u64 = 0;
+                while (order == initial_order) {
+
+                    // Move index.
+                    switch (order) {
+                        .GoesAfter => index += 1,
+                        .GoesBefore => index -|= 1,
+                    }
+
+                    // Bounds check.
+                    if (index == 0) {
+                        new_list.insert(0, page) catch unreachable;
+                        std.debug.print("Inserted at start. \n", .{});
+                        continue :page_loop;
+                    }
+                    if (index >= new_list.items.len) {
+                        new_list.append(page) catch unreachable;
+                        std.debug.print("Inserted at end. \n", .{});
+                        continue :page_loop;
+                    }
+
+                    // Compare with next item.
+                    order = getOrdering(page, new_list.items[index], rules).?;
+                }
+
+                // Insert item within existing items.
+                new_list.insert(index, page) catch unreachable;
+                std.debug.print("Inserted at index {d}. \n", .{index});
+            }
+
+            // All pages have been added in the correct order.
+            std.debug.assert(list.len == new_list.items.len);
+            corrected_lists.append(new_list.toOwnedSlice() catch unreachable) catch unreachable;
+        }
+    }
+
+    var sum_of_middles: u64 = 0;
+    for (corrected_lists.items) |list| {
+        const middle = list[list.len / 2];
+        sum_of_middles += middle;
+    }
+    return sum_of_middles;
 }
 
 fn parse(rules: *std.ArrayList(PageRule), lists: *std.ArrayList(PageList)) !void {
